@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { renderRoutes } from './routes/routes';
 import PageNotFound from './pages/PageNotFound';
-import Loading from './component/Loading';
+import Loading from './components/Loading';
 
 function App() {
   return (
