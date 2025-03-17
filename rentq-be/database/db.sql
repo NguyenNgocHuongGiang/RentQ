@@ -2,6 +2,7 @@ CREATE DATABASE IF NOT EXISTS `RentQ`;
 
 USE `RentQ`;
 
+-- Bảng người dùng
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     full_name VARCHAR(255) NOT NULL,
@@ -15,6 +16,16 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Bảng yêu cầu nâng cấp role
+CREATE TABLE role_requests (
+    request_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Bảng tin đăng
 CREATE TABLE listings (
     listing_id INT PRIMARY KEY AUTO_INCREMENT,
     landlord_id INT NOT NULL,
@@ -32,16 +43,17 @@ CREATE TABLE listings (
     FOREIGN KEY (landlord_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Bảng mới để lưu hình ảnh của tin đăng
+-- Bảng hình ảnh của tin đăng
 CREATE TABLE listing_images (
     image_id INT PRIMARY KEY AUTO_INCREMENT,
     listing_id INT NOT NULL,
     image_url VARCHAR(255) NOT NULL,
-    is_main BOOLEAN NOT NULL DEFAULT FALSE, -- Đánh dấu ảnh chính
+    is_main BOOLEAN NOT NULL DEFAULT FALSE,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
 
+-- Bảng hợp đồng thuê trọ
 CREATE TABLE contracts (
     contract_id INT PRIMARY KEY AUTO_INCREMENT,
     listing_id INT NOT NULL,
@@ -61,6 +73,7 @@ CREATE TABLE contracts (
     FOREIGN KEY (landlord_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Bảng hóa đơn
 CREATE TABLE bills (
     bill_id INT PRIMARY KEY AUTO_INCREMENT,
     contract_id INT NOT NULL,
@@ -72,6 +85,7 @@ CREATE TABLE bills (
     FOREIGN KEY (contract_id) REFERENCES contracts(contract_id) ON DELETE CASCADE
 );
 
+-- Bảng thanh toán
 CREATE TABLE payments (
     payment_id INT PRIMARY KEY AUTO_INCREMENT,
     bill_id INT NOT NULL,
@@ -83,6 +97,7 @@ CREATE TABLE payments (
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Bảng tin nhắn
 CREATE TABLE messages (
     message_id INT PRIMARY KEY AUTO_INCREMENT,
     sender_id INT NOT NULL,
@@ -93,6 +108,7 @@ CREATE TABLE messages (
     FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Bảng yêu cầu tìm bạn cùng phòng
 CREATE TABLE roommate_requests (
     request_id INT PRIMARY KEY AUTO_INCREMENT,
     tenant_id INT NOT NULL,
@@ -104,6 +120,7 @@ CREATE TABLE roommate_requests (
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
 
+-- Bảng tìm kiếm bạn cùng phòng
 CREATE TABLE roommate_finder (
     finder_id INT PRIMARY KEY AUTO_INCREMENT,
     tenant_id INT NOT NULL,
@@ -116,6 +133,7 @@ CREATE TABLE roommate_finder (
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Bảng đánh giá
 CREATE TABLE reviews (
     review_id INT PRIMARY KEY AUTO_INCREMENT,
     listing_id INT NOT NULL,
@@ -127,6 +145,7 @@ CREATE TABLE reviews (
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Bảng báo cáo
 CREATE TABLE reports (
     report_id INT PRIMARY KEY AUTO_INCREMENT,
     reporter_id INT NOT NULL,
@@ -138,6 +157,7 @@ CREATE TABLE reports (
     FOREIGN KEY (reported_listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
 
+-- Bảng thông báo
 CREATE TABLE notifications (
     notification_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -147,5 +167,14 @@ CREATE TABLE notifications (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-
-
+-- Bảng chuyển nhượng phòng
+CREATE TABLE room_transfer_requests (
+    transfer_id INT PRIMARY KEY AUTO_INCREMENT,
+    tenant_id INT NOT NULL,
+    listing_id INT NOT NULL,
+    description TEXT NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
+);

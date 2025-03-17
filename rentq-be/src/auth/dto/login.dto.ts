@@ -10,3 +10,9 @@ export class LoginDto{
     @ApiProperty()
     password: string
 }
+
+export class ResendMailDto{
+    @IsEmail({}, {message: "Email is wrong format"})
+    @ApiProperty()
+    email:string;
+}

@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 export default function RegisterPage() {
   return (
-    <div className="relative border border-amber-50  bg-opacity-10 backdrop-blur-2xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl px-6 py-10 rounded-lg shadow-lg z-10 mx-auto">
+    <div className="relative bg-white bg-opacity-10 backdrop-blur-2xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl px-6 py-10 rounded-lg shadow-lg z-10 mx-auto">
       <div className="flex flex-col justify-center">
-        <h2 className="text-center text-3xl sm:text-4xl font-bold tracking-tight text-white">
+        <h2 className="text-center text-3xl sm:text-4xl font-bold tracking-tight text-[#483507]">
           Sign Up
         </h2>
 
@@ -71,7 +71,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full rounded-md bg-[#483507] px-4 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#8d702d] focus:outline-none focus:ring-2 focus:ring-[#8d702d]"
+              className="hover:cursor-pointer w-full rounded-md bg-[#483507] px-4 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#8d702d] focus:outline-none focus:ring-2 focus:ring-[#8d702d]"
             >
               Sign Up
             </button>
@@ -79,7 +79,7 @@ export default function RegisterPage() {
 
           <div className="flex items-center my-6">
             <div className="flex-1 h-px bg-gray-300"></div>
-            <p className="mx-3 text-gray-50 text-sm">Or</p>
+            <p className="mx-3 text-gray-500 text-sm">Or</p>
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
 
@@ -92,11 +92,11 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <p className="mt-6 text-center text-sm text-gray-50">
+          <p className="mt-6 text-center text-sm text-gray-500">
             Already have an account?{" "}
             <Link
               to="/auth/login"
-              className="font-semibold text-[#483507]"
+              className="font-semibold text-[#8d702d] hover:text-[#483507]"
             >
               Login
             </Link>{" "}

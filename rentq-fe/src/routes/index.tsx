@@ -21,6 +21,9 @@ const routes: RouteConfig[] = [
     nested: [
       { path: "login", element: lazy(() => import("./../pages/AuthTemplate/LoginPage"))},
       { path: "register", element: lazy(() => import("./../pages/AuthTemplate/RegisterPage"))},
+      { path: "forgotPass", element: lazy(() => import("./../pages/AuthTemplate/ForgotPasswordPage"))},
+      { path: "vertify-success", element: lazy(() => import("../pages/AuthTemplate/Verification/verifySuccess"))},
+      { path: "vertify-fail", element: lazy(() => import("../pages/AuthTemplate/Verification/verifyFail"))},
     ]
   },
 ];

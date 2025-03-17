@@ -16,15 +16,15 @@ export class UsersController {
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: 201, description: 'The user has been successfully created.', type: CreateUserDto })
   @ApiResponse({ status: 409, description: 'Email or phone already exists.' })
-  create(@Body() createUserDto: CreateUserDto): Promise<users> {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of all users.', type: [CreateUserDto] })
-  findAll(): Promise<users[]> {
-    return this.usersService.findAll();
+  async findAll() {
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
@@ -32,8 +32,8 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
   @ApiResponse({ status: 200, description: 'The user details.', type: CreateUserDto })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  findOne(@Param('id') id: string): Promise<users> {
-    return this.usersService.findOne(+id);
+  async findOne(@Param('id') id: string){
+    return await this.usersService.findOne(+id);
   }
 
   // @Patch(':id')
@@ -52,7 +52,7 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
   @ApiResponse({ status: 200, description: 'The user has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(+id);
   }
 }
