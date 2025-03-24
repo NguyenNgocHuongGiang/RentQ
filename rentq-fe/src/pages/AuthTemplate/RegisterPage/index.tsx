@@ -1,8 +1,71 @@
-import React from "react";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { AppDispatch } from "../../../store";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { registerUser } from "../slice";
 
 export default function RegisterPage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const formik = useFormik({
+    initialValues: {
+      full_name: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+      phone: "",
+      address: "",
+      role: "tenant",
+    },
+    validationSchema: Yup.object({
+      full_name: Yup.string().required("Full name is required"),
+      email: Yup.string().email("Invalid email").required("Email is required"),
+      password: Yup.string().required("Password is required"),
+      confirm_password: Yup.string()
+        .oneOf([Yup.ref("password")], "Passwords must match")
+        .required("Confirm Password is required"),
+      phone: Yup.string()
+        .matches(/^[0-9]{10}$/, "Phone must be exactly 10 digits")
+        .required("Phone is required"),
+      address: Yup.string().required("Address is required"),
+    }),
+    enableReinitialize: true,
+    // validateOnChange: true,
+    onSubmit: async (values) => {
+      const newUser = {
+        full_name: values.full_name,
+        email: values.email,
+        password: values.password,
+        phone: values.phone,
+        address: values.address,
+        role: values.role,
+        is_verified: false,
+      };
+
+      try {
+        await dispatch(registerUser(newUser)).unwrap();
+        toast.success("Đăng ký thành công");
+        toast.success("Vui lòng kiểm tra email để kích hoạt tài khoản.");
+        navigate("/auth/login");
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    },
+  });
+
+  useEffect(() => {
+    Object.entries(formik.errors).forEach(([field, message]) => {
+      if (formik.touched[field as keyof typeof formik.touched]) {
+        toast.error(`${message}`);
+      }
+    });
+  }, [formik.errors, formik.touched]);
+
   return (
     <div className="relative bg-white bg-opacity-10 backdrop-blur-2xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl px-6 py-10 rounded-lg shadow-lg z-10 mx-auto">
       <div className="flex flex-col justify-center">
@@ -11,9 +74,11 @@ export default function RegisterPage() {
         </h2>
 
         <div className="mt-8">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={formik.handleSubmit}>
             <div className="flex flex-wrap gap-4">
               <input
+                onChange={formik.handleChange}
+                value={formik.values.full_name}
                 type="text"
                 name="full_name"
                 id="full_name"
@@ -22,6 +87,8 @@ export default function RegisterPage() {
                 className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
               />
               <input
+                onChange={formik.handleChange}
+                value={formik.values.email}
                 type="email"
                 name="email"
                 id="email"
@@ -33,6 +100,8 @@ export default function RegisterPage() {
 
             <div className="flex flex-wrap gap-4">
               <input
+                onChange={formik.handleChange}
+                value={formik.values.password}
                 type="password"
                 name="password"
                 id="password"
@@ -41,6 +110,8 @@ export default function RegisterPage() {
                 className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
               />
               <input
+                onChange={formik.handleChange}
+                value={formik.values.confirm_password}
                 type="password"
                 name="confirm_password"
                 id="confirm_password"
@@ -52,6 +123,8 @@ export default function RegisterPage() {
 
             <div className="flex flex-wrap gap-4">
               <input
+                onChange={formik.handleChange}
+                value={formik.values.phone}
                 type="tel"
                 name="phone"
                 id="phone"
@@ -60,6 +133,8 @@ export default function RegisterPage() {
                 className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
               />
               <input
+                onChange={formik.handleChange}
+                value={formik.values.address}
                 type="text"
                 name="address"
                 id="address"

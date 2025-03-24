@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Redirect,
+} from '@nestjs/common';
 import { PrismaClient, users_role } from '@prisma/client';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from './dto/login.dto';
 import { MailService } from './mail.service';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -14,18 +20,20 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    private mailService: MailService, 
+    private mailService: MailService,
   ) {}
 
   async register(registerDto: RegisterDto) {
     const { full_name, email, password, phone, address, role } = registerDto;
 
-    const userExists = await this.prisma.users.findUnique({
-      where: { email },
+    const userExists = await this.prisma.users.findFirst({
+      where: {
+        OR: [{ email }, { phone }],
+      },
     });
 
     if (userExists) {
-      throw new Error('User already exists');
+      throw new BadRequestException('Email or phone number already exists');
     }
 
     const userNew = await this.prisma.users.create({
@@ -35,9 +43,10 @@ export class AuthService {
         password: bcrypt.hashSync(password, 10),
         phone: phone,
         address: address,
-        avatar_url: 'https://res.cloudinary.com/dlrd3ngz5/image/upload/v1738950300/kahoot_clone/bgu71soejmd8aniapnmy.jpg',
+        avatar_url:
+          'https://res.cloudinary.com/dlrd3ngz5/image/upload/v1738950300/kahoot_clone/bgu71soejmd8aniapnmy.jpg',
         role: role as users_role,
-        is_verified: false
+        is_verified: false,
       },
     });
 
@@ -51,36 +60,40 @@ export class AuthService {
     );
     await this.mailService.sendVerificationEmail(email, verificationToken);
 
-    return { message: 'User registered successfully. Please check your email to verify your account.' };
+    return {
+      message:
+        'User registered successfully. Please check your email to verify your account.',
+    };
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string, res: Response) {
     try {
       const decoded = this.jwtService.verify(token, {
         secret: this.configService.get('SECRET_KEY'),
       });
-  
+
       const user = await this.prisma.users.findUnique({
         where: { user_id: decoded.userId },
       });
-  
+
       if (!user) {
-        throw new BadRequestException('Invalid token');
+        return res.redirect(`${process.env.FRONTEND_URL}auth/verify-fail`);
       }
-  
+
       if (user.is_verified) {
-        return { message: 'Your account is already verified' };
+        return res.redirect(`${process.env.FRONTEND_URL}auth/verify-fail`);
       }
-  
+
+
       // Cập nhật trạng thái xác thực
       await this.prisma.users.update({
         where: { user_id: user.user_id },
         data: { is_verified: true },
       });
-  
-      return { message: 'Email verified successfully' };
+
+      return res.redirect(`${process.env.FRONTEND_URL}auth/verify-success`);
     } catch (error) {
-      throw new BadRequestException('Invalid or expired token');
+      return res.redirect(`${process.env.FRONTEND_URL}auth/verify-fail`);
     }
   }
 
@@ -108,24 +121,31 @@ export class AuthService {
     await this.mailService.sendVerificationEmail(email, token);
     return 'A new verification email has been sent';
   }
-  
+
   async login(body: LoginDto) {
     const { email, password } = body;
     const user = await this.prisma.users.findFirst({ where: { email } });
-  
+
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new BadRequestException('Email or password is incorrect');
     }
 
-    if(!user.is_verified){
+    if (!user.is_verified) {
       throw new BadRequestException('Your email has not been verified yet');
     }
-  
+
     const token = this.jwtService.sign(
-      { data: { userId: user.user_id, userName: user.full_name, userRole: user.role } },
-      { expiresIn: '30m', secret: this.configService.get('SECRET_KEY') }
+      {
+        data: {
+          userId: user.user_id,
+          userName: user.full_name,
+          userRole: user.role,
+          avatar: user.avatar_url,
+        },
+      },
+      { expiresIn: '30m', secret: this.configService.get('SECRET_KEY') },
     );
-  
+
     return token;
   }
 }

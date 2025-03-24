@@ -45,18 +45,16 @@ export class UsersService {
     return user;
   }
 
-  // async update(id: number, updateUserDto: UpdateUserDto): Promise<users> {
-  //   const user = await this.findOne(id);
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<users> {
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
 
-  //   if (updateUserDto.password) {
-  //     updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-  //   }
-
-  //   return this.prisma.users.update({
-  //     where: { user_id: id },
-  //     data: updateUserDto,
-  //   });
-  // }
+    return this.prisma.users.update({
+      where: { user_id: id },
+      data: updateUserDto,
+    });
+  }
 
   async remove(id: number): Promise<void> {
     await this.findOne(id);

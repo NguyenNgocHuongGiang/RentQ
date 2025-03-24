@@ -13,6 +13,7 @@ const routes: RouteConfig[] = [
     nested: [
       { path: "", element: lazy(() => import("./../pages/UserTemplate/Homepage"))},
       { path: "discovery", element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage"))},
+      { path: "profile", element: lazy(() => import("./../pages/UserTemplate/ProfilePage"))},
     ]
   },
   {
@@ -22,8 +23,8 @@ const routes: RouteConfig[] = [
       { path: "login", element: lazy(() => import("./../pages/AuthTemplate/LoginPage"))},
       { path: "register", element: lazy(() => import("./../pages/AuthTemplate/RegisterPage"))},
       { path: "forgotPass", element: lazy(() => import("./../pages/AuthTemplate/ForgotPasswordPage"))},
-      { path: "vertify-success", element: lazy(() => import("../pages/AuthTemplate/Verification/verifySuccess"))},
-      { path: "vertify-fail", element: lazy(() => import("../pages/AuthTemplate/Verification/verifyFail"))},
+      { path: "verify-success", element: lazy(() => import("../pages/AuthTemplate/Verification/verifySuccess"))},
+      { path: "verify-fail", element: lazy(() => import("../pages/AuthTemplate/Verification/verifyFail"))},
     ]
   },
 ];

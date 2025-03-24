@@ -5,8 +5,10 @@ import {
   Post,
   Get,
   Query,
+  Res
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto, ResendMailDto } from './dto/login.dto';
@@ -42,9 +44,8 @@ export class AuthController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server',
   })
-  async verifyEmail(@Query('token') token: string) {
-    return await this.authService.verifyEmail(token);
-    
+  async verifyEmail(@Query('token') token: string, @Res() res: Response) {
+    return await this.authService.verifyEmail(token, res);
   }
 
   @Post('resend-email')

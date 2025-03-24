@@ -1,0 +1,129 @@
+import { useEffect, useState } from "react";
+import { User } from "../../../types/types";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { getAuthData } from "../../../utils/helpers";
+import { getInfoUser, updateInfoUser } from "../slice";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+
+interface MyProfileProps {
+  user: User;
+}
+
+export default function MyProfile() {
+  const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const [info, setInfo] = useState<User>({
+    address: "",
+    avatar_url: "",
+    email: "",
+    full_name: "",
+    phone: "",
+    role: "",
+    user_id: 0,
+  });
+  const { data: user } = useSelector((state: RootState) => state.userReducer);
+
+  useEffect(() => {
+    fetchInfo();
+  }, []);
+
+  const fetchInfo = async () => {
+    const userData = getAuthData();
+    if (userData?.userId) {
+      dispatch(getInfoUser(userData.userId)).unwrap();
+    }
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      full_name: user?.full_name || "",
+      email: user?.email || "",
+      phone: user?.phone || "", 
+      address: user?.address || "",
+    },
+    validationSchema: Yup.object({
+      full_name: Yup.string().required("Full name is required"),
+      email: Yup.string().email("Invalid email").required("Email is required"),
+      phone: Yup.string()
+        .matches(/^[0-9]{10}$/, "Phone must be exactly 10 digits")
+        .required("Phone is required"),
+      address: Yup.string().required("Address is required"),
+    }),
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      const updatedValues = { ...values }; 
+      const userData = getAuthData();
+      if (userData?.userId) {
+        dispatch(updateInfoUser({ user_id: userData.userId, userData: updatedValues })).unwrap();
+      }
+    },
+  });
+
+  return (
+    <div className="flex flex-col items-center text-center w-full">
+      {/* Avatar + User Info */}
+      <img
+        src={user?.avatar_url}
+        alt="Avatar"
+        className="w-32 h-32 rounded-full border-4 border-gray-300"
+      />
+      <h2 className="text-2xl font-bold mt-4">{user?.full_name}</h2>
+
+      <form
+        onSubmit={formik.handleSubmit}
+        className="mt-6 w-full max-w-md space-y-4"
+      >
+        <div className="flex flex-col text-left">
+          <label className="font-medium">Full Name</label>
+          <input
+            type="text"
+            name="full_name"
+            value={formik.values.full_name}
+            onChange={formik.handleChange}
+            className="p-2 border rounded-lg"
+          />
+        </div>
+        <div className="flex flex-col text-left">
+          <label className="font-medium">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            className="p-2 border rounded-lg"
+            disabled
+          />
+        </div>
+        <div className="flex flex-col text-left">
+          <label className="font-medium">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            value={formik.values.phone}
+            onChange={formik.handleChange}
+            className="p-2 border rounded-lg"
+          />
+        </div>
+        <div className="flex flex-col text-left">
+          <label className="font-medium">Address</label>
+          <input
+            type="text"
+            name="address"
+            value={formik.values.address}
+            onChange={formik.handleChange}
+            className="p-2 border rounded-lg"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-[#483507] text-white p-3 mt-2 mb-5 rounded-lg hover:bg-[#c2bdb5] hover:text-[#483507] hover:font-bold hover:cursor-pointer"
+        >
+          Save Changes
+        </button>
+      </form>
+    </div>
+  );
+}
