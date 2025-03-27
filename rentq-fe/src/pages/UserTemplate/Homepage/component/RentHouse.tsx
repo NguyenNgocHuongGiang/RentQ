@@ -1,5 +1,3 @@
-import React from "react";
-
 const houses = [
   {
     id: 1,

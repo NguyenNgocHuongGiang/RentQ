@@ -9,20 +9,20 @@ export class ListingsService {
 
   async create(createListingDto: CreateListingDto) {
     const landlord = await this.prisma.users.findUnique({
-        where: { user_id: createListingDto.landlordId }
+      where: { user_id: createListingDto.landlordId },
     });
 
     if (!landlord) {
-        throw new Error("Landlord does not exist");
+      throw new Error('Landlord does not exist');
     }
 
     return this.prisma.listings.create({
-       data: {
+      data: {
         landlord_id: createListingDto.landlordId,
         title: createListingDto.title,
         address: createListingDto.address,
         area: createListingDto.area,
-        price: createListingDto.price, 
+        price: createListingDto.price,
         utilities: createListingDto.utilities,
         max_people: createListingDto.maxPeople,
         furniture: createListingDto.furniture,
@@ -31,7 +31,22 @@ export class ListingsService {
         description: createListingDto.description,
       },
     });
-}
+  }
+
+  async findUserListings(userId: number) {
+    return await this.prisma.listings.findMany({
+      where: { landlord_id: userId },
+      select: {
+        listing_id: true,
+        title: true,
+        price: true,
+        description: true,
+        listing_images: {
+          select: { image_url: true, is_main: true },
+        },
+      },
+    });
+  }
 
   async findAll() {
     return this.prisma.listings.findMany();
@@ -43,12 +58,12 @@ export class ListingsService {
     });
   }
 
-  // async update(id: number, updateListingDto: UpdateListingDto) {
-  //   return this.prisma.listings.update({
-  //     where: { listing_id: id },
-  //     data: updateListingDto,
-  //   });
-  // }
+  async update(id: number, updateListingDto: UpdateListingDto) {
+    return this.prisma.listings.update({
+      where: { listing_id: id },
+      data: updateListingDto,
+    });
+  }
 
   async remove(id: number) {
     return this.prisma.listings.delete({

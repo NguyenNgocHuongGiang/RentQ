@@ -1,28 +1,15 @@
-import { useEffect, useState } from "react";
-import { User } from "../../../types/types";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { getAuthData } from "../../../utils/helpers";
 import { getInfoUser, updateInfoUser } from "../slice";
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { toast } from "react-toastify";
 
-interface MyProfileProps {
-  user: User;
-}
 
 export default function MyProfile() {
-  const [isEditing, setIsEditing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const [info, setInfo] = useState<User>({
-    address: "",
-    avatar_url: "",
-    email: "",
-    full_name: "",
-    phone: "",
-    role: "",
-    user_id: 0,
-  });
   const { data: user } = useSelector((state: RootState) => state.userReducer);
 
   useEffect(() => {
@@ -58,6 +45,7 @@ export default function MyProfile() {
       if (userData?.userId) {
         dispatch(updateInfoUser({ user_id: userData.userId, userData: updatedValues })).unwrap();
       }
+      toast.success("Update successfully")
     },
   });
 

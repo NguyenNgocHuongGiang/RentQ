@@ -95,7 +95,7 @@ export default function Profile() {
       </div>
 
       {/* Main Content */}
-      <div className="w-5/6 h-auto p-6 ml-5 border rounded-lg shadow-md">
+      <div className="w-5/6 min-h-96 p-6 ml-5 border rounded-lg shadow-md">
         {activeTab === "profile" && <MyProfile />}
         {activeTab === "posts" && <Posts />}
         {activeTab === "bills" && (

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { ListingsService } from './listings.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
@@ -19,15 +19,15 @@ export class ListingsController {
     return this.listingsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.listingsService.findOne(+id);
+  @Get('/get-user-listings/:userId')
+  findOne(@Param('userId') userId: string) {
+    return this.listingsService.findUserListings(+userId);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateListingDto: UpdateListingDto) {
-  //   return this.listingsService.update(+id, updateListingDto);
-  // }
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateListingDto: UpdateListingDto) {
+    return this.listingsService.update(+id, updateListingDto);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

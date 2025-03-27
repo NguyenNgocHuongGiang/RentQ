@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="bg-[#c2bdb5] shadow-sm bg-[#c2bdb5] mt-5">
+    <footer className="bg-[#c2bdb5] shadow-sm bg-[#c2bdb5]">
       <div className="w-full max-w-screen-xl mx-auto p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <a

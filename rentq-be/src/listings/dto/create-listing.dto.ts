@@ -24,9 +24,9 @@ export class CreateListingDto {
     area: number;
 
     @ApiProperty({ example: "15000000", description: "Price (VND)", type: String }) // Prisma uses Decimal
-    @IsString()  
+    @IsNumber() 
     @IsNotEmpty({ message: "Price is required" })
-    price: string;
+    price: number;
 
     @ApiProperty({ example: "Free electricity, water, internet", required: false, description: "Additional utilities" })
     @IsString()

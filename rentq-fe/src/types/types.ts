@@ -4,7 +4,6 @@ export type DefaultState = {
   error: string | null;
 };
 
-
 export type User = {
   address?: string;
   avatar_url?: string;
@@ -17,3 +16,37 @@ export type User = {
   role?: string;
   user_id?: number;
 };
+
+export type RoleRequestType = {
+  request_id?: number;
+  user_id?: number;
+  status?: string;
+  created_at?: string;
+};
+
+export interface RoleRequest {
+  user_id: number;
+  status: "pending" | "approved" | "rejected";
+}
+
+export type ListingsProperty = {
+  listing_id?: number;
+  landlordId: number;
+  title: string;
+  address: string;
+  area: number;
+  price: number;
+  utilities: string;
+  maxPeople: number;
+  furniture: "full" | "partial" | "none";
+  availableFrom: Date;
+  propertyType: "apartment" | "house" | "office" | "storefront";
+  description: string;
+  listing_images?: { image_url: string, is_main?: boolean }[];
+};
+
+export type ListingImageType = {
+  listing_id: number;
+  images_url: string[];
+  isMain: boolean[];
+}

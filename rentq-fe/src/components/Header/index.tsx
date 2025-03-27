@@ -92,14 +92,14 @@ export default function Header() {
             <>
               <button
                 type="button"
-                className="mr-5 text-[#483507] hover:text-white bg-transparent hover:bg-[#483507] focus:ring-4 focus:outline-none focus:ring-[#483507] font-medium rounded-lg text-sm px-4 py-2 text-center border border-[#483507] border-2 hover:cursor-pointer transition duration-300 transform hover:scale-105"
+                className="mr-5 text-[#483507] hover:text-white bg-transparent hover:bg-[#483507] focus:ring-4 focus:outline-none focus:ring-[#483507] font-medium rounded-lg text-sm px-4 py-2 text-center border-[#483507] border-2 hover:cursor-pointer transition duration-300 transform hover:scale-105"
                 onClick={() => navigate("/auth/login")}
               >
                 Login
               </button>
               <button
                 type="button"
-                className="text-white bg-[#483507] hover:bg-transparent focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center border border-[#483507] border-2 hover:text-[#483507] hover:cursor-pointer transition duration-300 transform hover:scale-105"
+                className="text-white bg-[#483507] hover:bg-transparent focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center border-[#483507] border-2 hover:text-[#483507] hover:cursor-pointer transition duration-300 transform hover:scale-105"
                 onClick={() => navigate("/auth/register")}
               >
                 Sign up

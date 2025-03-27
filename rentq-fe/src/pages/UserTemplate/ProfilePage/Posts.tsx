@@ -1,90 +1,170 @@
-import { useState } from "react";
-import { Dialog } from "@headlessui/react";
-import { FaHome } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaHome, FaClock, FaPlus, FaTimesCircle } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../store";
+import { getAuthData } from "../../../utils/helpers";
+import { createRoleRequest, getUserListings, getUserRole } from "../slice";
+import { ListingsProperty, RoleRequest } from "../../../types/types";
+import { toast } from "react-toastify";
+import AddPostModal from "../../../components/Modal/AddPostModal";
+import PostCard from "../../../components/Card/PostCard";
+import PolicyModal from "../../../components/Modal/PolicyModal";
 
 export default function Posts() {
+  const { data } = useSelector((state: any) => state.userReducer);
+  const dispatch = useDispatch<AppDispatch>();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isOpenAdd, setIsOpenAdd] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [listings, setUserListings] = useState<ListingsProperty[]>();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const user = getAuthData();
+
+  useEffect(() => {
+    if (user) {
+      dispatch(getUserRole(user.userId)).unwrap();
+      dispatch(getUserListings(user.userId))
+        .unwrap()
+        .then((data) => setUserListings(data));
+    }
+  }, [dispatch]);
 
   const handleSubmit = () => {
     if (agreed) {
-      setIsSubmitted(true);
+      const user = getAuthData();
+      const newRole = {
+        user_id: user?.userId,
+        status: "pending",
+      };
+      try {
+        dispatch(createRoleRequest(newRole as RoleRequest)).unwrap();
+        toast.success("Request sent successfully!");
+      } catch (error: any) {
+        toast.error(error.message);
+      }
       setIsOpen(false);
     }
   };
 
-  return (
-    <div className="p-6rounded-lg text-center">
-      <div className="flex flex-col items-center justify-center mt-6">
-        <FaHome className="w-24 h-24 text-gray-400 my-8" />
-        <h3 className="text-xl font-semibold mb-4 text-[#483507]">
-          Are you a landlord looking to rent out your property?
-        </h3>
-      </div>
+  const handlePostCreated = (newPost: ListingsProperty) => {
+    if (newPost) {
+      setUserListings((prevListings) => [...(prevListings || []), newPost]);
 
-      {!isSubmitted ? (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="w-1/4 bg-[#483507] text-white p-3 rounded-lg hover:bg-[#c2bdb5] hover:text-[#483507] hover:font-bold hover:cursor-pointer"
-        >
-          Send request
-        </button>
-      ) : (
-        <div className="flex flex-col items-center justify-center mt-6">
-          <p className="text-gray-600 font-semibold mt-4">
-            Yêu cầu đang được phê duyệt...
-          </p>
+      dispatch(getUserRole(user.userId)).unwrap();
+
+      dispatch(getUserListings(user.userId))
+        .unwrap()
+        .then((data) => setUserListings(data));
+    }
+  };
+
+  const filteredData = Array.isArray(listings)
+    ? listings.filter((listing: ListingsProperty) =>
+        listing.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
+  return (
+    <div className="p-6 text-center ">
+      {data == null && (
+        <div>
+          <div className="flex flex-col items-center justify-center mt-6">
+            <FaHome className="w-24 h-24 text-gray-400 my-8" />
+            <h3 className="text-xl font-semibold mb-4 text-[#483507]">
+              Are you a landlord looking to rent out your property?
+            </h3>
+          </div>
+
+          <button
+            onClick={() => setIsOpen(true)}
+            className="mb-16 w-1/4 bg-[#483507] text-white p-3 rounded-lg hover:bg-[#c2bdb5] hover:text-[#483507] hover:font-bold hover:cursor-pointer"
+          >
+            Send request
+          </button>
         </div>
       )}
 
-      {/* Modal */}
-      <Dialog
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-      >
-        <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-          <Dialog.Title className="text-lg font-semibold">
-            Chính sách cho thuê
-          </Dialog.Title>
-          <p className="text-gray-600 mt-2">
-            Trước khi tiếp tục, bạn cần đồng ý với các điều khoản và chính sách
-            của nền tảng.
-          </p>
-          <div className="flex items-center mt-4">
-            <input
-              type="checkbox"
-              id="agree"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="agree" className="text-gray-700">
-              Tôi đồng ý với chính sách
-            </label>
-          </div>
-          <div className="flex justify-end mt-4 space-x-2">
-            <button
-              onClick={() => setIsOpen(false)}
-              className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-            >
-              Hủy
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!agreed}
-              className={`px-4 py-2 rounded-lg ${
-                agreed
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-gray-400 text-gray-700 cursor-not-allowed"
-              }`}
-            >
-              Gửi yêu cầu
-            </button>
+      {data && data.status == "pending" && (
+        <div className="flex flex-col items-center justify-center mt-6">
+          <FaClock className="w-24 h-24 text-[#c2bdb5] my-8" />
+          <div className="text-white bg-[#c2bdb5] p-4 px-8 rounded-lg text-lg font-bold">
+            Your request has been submitted. We will review shortly...
           </div>
         </div>
-      </Dialog>
+      )}
+
+      {data && data.status === "rejected" && (
+        <div className="flex flex-col items-center justify-center mt-6">
+          <FaTimesCircle className="w-24 h-24 text-red-500 my-8" />
+          <div className="text-red-500 p-4 px-8 rounded-lg text-lg font-bold">
+            Your request has been rejected. Please check the details or contact
+            support for assistance.
+          </div>
+        </div>
+      )}
+
+      {data && data.status == "approved" && (
+        <div>
+          {(listings ?? []).length > 0 ? (
+            <div>
+              <div className="flex justify-between mb-4">
+                <button
+                  onClick={() => setIsOpenAdd(true)}
+                  className="bg-[#483507] flex justify-center items-center text-white py-2 px-3 rounded-lg hover:bg-[#c2bdb5] hover:text-[#483507] hover:font-bold hover:cursor-pointer"
+                >
+                  <FaPlus />
+                  <p className="ml-3">Add new post</p>
+                </button>
+                <input
+                  type="text"
+                  className="w-1/2 border border-gray-300 rounded-lg"
+                  placeholder="Search by title"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredData.map((listing: ListingsProperty) => (
+                  <PostCard key={listing.listing_id} listing={listing} />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-[#483507] p-4 rounded-lg text-center">
+              <p className="text-3xl font-bold">Hello!</p>
+              <p className="text-xl my-3">Your request has been approved!</p>
+              <p className="mb-4 text-lg">
+                Start creating your first post now.
+              </p>
+              <button
+                onClick={() => setIsOpenAdd(true)}
+                className="bg-[#483507] text-white p-5 rounded-lg hover:bg-[#c2bdb5] hover:text-[#483507] hover:font-bold hover:cursor-pointer"
+              >
+                <FaPlus />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal policy*/}
+      {isOpen && (
+        <PolicyModal
+          setIsOpen={setIsOpen}
+          agreed={agreed}
+          setAgreed={setAgreed}
+          handleSubmit={handleSubmit}
+        />
+      )}
+
+      {/* Modal add post */}
+      {isOpenAdd && (
+        <AddPostModal
+          setIsOpenAdd={setIsOpenAdd}
+          onPostCreated={handlePostCreated}
+        />
+      )}
     </div>
   );
 }

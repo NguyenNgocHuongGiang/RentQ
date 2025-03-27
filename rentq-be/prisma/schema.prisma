@@ -57,25 +57,26 @@ model listing_images {
 }
 
 model listings {
-  listing_id        Int                    @id @default(autoincrement())
-  landlord_id       Int
-  title             String                 @db.VarChar(255)
-  address           String                 @db.Text
-  area              Float                  @db.Float
-  price             Decimal                @db.Decimal(10, 2)
-  utilities         String?                @db.Text
-  max_people        Int
-  furniture         listings_furniture
-  available_from    DateTime               @db.Date
-  property_type     listings_property_type @default(apartment)
-  description       String?                @db.Text
-  created_at        DateTime?              @default(now()) @db.Timestamp(0)
-  contracts         contracts[]
-  listing_images    listing_images[]
-  users             users                  @relation(fields: [landlord_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "listings_ibfk_1")
-  reports           reports[]
-  reviews           reviews[]
-  roommate_requests roommate_requests[]
+  listing_id             Int                      @id @default(autoincrement())
+  landlord_id            Int
+  title                  String                   @db.VarChar(255)
+  address                String                   @db.Text
+  area                   Float                    @db.Float
+  price                  Decimal                  @db.Decimal(10, 2)
+  utilities              String?                  @db.Text
+  max_people             Int
+  furniture              listings_furniture
+  available_from         DateTime                 @db.Date
+  property_type          listings_property_type   @default(apartment)
+  description            String?                  @db.Text
+  created_at             DateTime?                @default(now()) @db.Timestamp(0)
+  contracts              contracts[]
+  listing_images         listing_images[]
+  users                  users                    @relation(fields: [landlord_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "listings_ibfk_1")
+  reports                reports[]
+  reviews                reviews[]
+  room_transfer_requests room_transfer_requests[]
+  roommate_requests      roommate_requests[]
 
   @@index([landlord_id], map: "landlord_id")
 }
@@ -147,6 +148,30 @@ model reviews {
   @@index([tenant_id], map: "tenant_id")
 }
 
+model role_requests {
+  request_id Int                  @id @default(autoincrement())
+  user_id    Int
+  status     role_requests_status @default(pending)
+  created_at DateTime?            @default(now()) @db.Timestamp(0)
+  users      users                @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "role_requests_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model room_transfer_requests {
+  transfer_id Int                           @id @default(autoincrement())
+  tenant_id   Int
+  listing_id  Int
+  description String                        @db.Text
+  status      room_transfer_requests_status @default(pending)
+  created_at  DateTime?                     @default(now()) @db.Timestamp(0)
+  users       users                         @relation(fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "room_transfer_requests_ibfk_1")
+  listings    listings                      @relation(fields: [listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "room_transfer_requests_ibfk_2")
+
+  @@index([listing_id], map: "listing_id")
+  @@index([tenant_id], map: "tenant_id")
+}
+
 model roommate_finder {
   finder_id          Int                    @id @default(autoincrement())
   tenant_id          Int
@@ -176,27 +201,35 @@ model roommate_requests {
 }
 
 model users {
-  user_id                                Int                 @id @default(autoincrement())
-  full_name                              String              @db.VarChar(255)
-  phone                                  String              @unique(map: "phone") @db.VarChar(20)
-  email                                  String              @unique(map: "email") @db.VarChar(255)
-  password                               String              @db.VarChar(255)
-  address                                String?             @db.Text
-  avatar_url                             String?             @db.VarChar(255)
-  role                                   users_role          @default(tenant)
-  is_verified                            Boolean             @default(false)
-  created_at                             DateTime?           @default(now()) @db.Timestamp(0)
-  contracts_contracts_tenant_idTousers   contracts[]         @relation("contracts_tenant_idTousers")
-  contracts_contracts_landlord_idTousers contracts[]         @relation("contracts_landlord_idTousers")
+  user_id                                Int                      @id @default(autoincrement())
+  full_name                              String                   @db.VarChar(255)
+  phone                                  String                   @unique(map: "phone") @db.VarChar(20)
+  email                                  String                   @unique(map: "email") @db.VarChar(255)
+  password                               String                   @db.VarChar(255)
+  address                                String?                  @db.Text
+  avatar_url                             String?                  @db.VarChar(255)
+  role                                   users_role               @default(tenant)
+  is_verified                            Boolean                  @default(false)
+  created_at                             DateTime?                @default(now()) @db.Timestamp(0)
+  contracts_contracts_tenant_idTousers   contracts[]              @relation("contracts_tenant_idTousers")
+  contracts_contracts_landlord_idTousers contracts[]              @relation("contracts_landlord_idTousers")
   listings                               listings[]
-  messages_messages_sender_idTousers     messages[]          @relation("messages_sender_idTousers")
-  messages_messages_receiver_idTousers   messages[]          @relation("messages_receiver_idTousers")
+  messages_messages_sender_idTousers     messages[]               @relation("messages_sender_idTousers")
+  messages_messages_receiver_idTousers   messages[]               @relation("messages_receiver_idTousers")
   notifications                          notifications[]
   payments                               payments[]
   reports                                reports[]
   reviews                                reviews[]
+  role_requests                          role_requests[]
+  room_transfer_requests                 room_transfer_requests[]
   roommate_finder                        roommate_finder[]
   roommate_requests                      roommate_requests[]
+}
+
+enum role_requests_status {
+  pending
+  approved
+  rejected
 }
 
 enum bills_bill_type {
@@ -211,14 +244,20 @@ enum notifications_status {
   read
 }
 
-enum reports_status {
-  pending
-  resolved
-}
-
 enum roommate_requests_status {
   open
   closed
+}
+
+enum room_transfer_requests_status {
+  pending
+  approved
+  rejected
+}
+
+enum reports_status {
+  pending
+  resolved
 }
 
 enum payments_payment_method {
