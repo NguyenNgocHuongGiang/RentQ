@@ -11,16 +11,34 @@ export class ListingsService {
     const landlord = await this.prisma.users.findUnique({
       where: { user_id: createListingDto.landlordId },
     });
-
+  
     if (!landlord) {
       throw new Error('Landlord does not exist');
     }
-
+  
+    let alias = createListingDto.title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+  
+    let uniqueAlias = alias;
+    let count = 1;
+  
+    while (await this.prisma.listings.findFirst({ where: { alias: uniqueAlias } })) {
+      uniqueAlias = `${alias}-${count}`;
+      count++;
+    }
+  
     return this.prisma.listings.create({
       data: {
         landlord_id: createListingDto.landlordId,
         title: createListingDto.title,
         address: createListingDto.address,
+        alias: uniqueAlias,
         area: createListingDto.area,
         price: createListingDto.price,
         utilities: createListingDto.utilities,
@@ -32,18 +50,23 @@ export class ListingsService {
       },
     });
   }
-
+  
   async findUserListings(userId: number) {
     return await this.prisma.listings.findMany({
       where: { landlord_id: userId },
       select: {
         listing_id: true,
         title: true,
+        address: true,
         price: true,
+        alias: true,
         description: true,
-        listing_images: {
-          select: { image_url: true, is_main: true },
+        reviews: {
+          select: {
+            rating :true
+          }
         },
+        listing_images: true
       },
     });
   }
@@ -52,9 +75,25 @@ export class ListingsService {
     return this.prisma.listings.findMany();
   }
 
-  async findOne(id: number) {
-    return this.prisma.listings.findUnique({
-      where: { listing_id: id },
+  async findOne(alias: string) {
+    return this.prisma.listings.findFirst({
+      where: { alias: alias },
+      include: {
+        listing_images: true, 
+        reviews: {
+          select: {
+            rating: true,
+            comment: true,
+            created_at: true,
+            users: {
+              select: {
+                full_name: true,
+                avatar_url: true
+              }
+            }
+          }
+        },
+      },
     });
   }
 

@@ -14,7 +14,7 @@ const routes: RouteConfig[] = [
       { path: "", element: lazy(() => import("./../pages/UserTemplate/Homepage"))},
       { path: "discovery", element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage"))},
       { path: "profile", element: lazy(() => import("./../pages/UserTemplate/ProfilePage"))},
-      { path: "detailpost/:id", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
+      { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
     ]
   },
   {

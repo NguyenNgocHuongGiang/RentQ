@@ -34,6 +34,7 @@ export type ListingsProperty = {
   landlordId: number;
   title: string;
   address: string;
+  alias:string;
   area: number;
   price: number;
   utilities: string;

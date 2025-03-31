@@ -12,7 +12,6 @@ export class UsersController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  @ApiOperation({ summary: 'Create a new user' })
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: 201, description: 'The user has been successfully created.', type: CreateUserDto })
   @ApiResponse({ status: 409, description: 'Email or phone already exists.' })
@@ -21,14 +20,12 @@ export class UsersController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of all users.', type: [CreateUserDto] })
   async findAll() {
     return await this.usersService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
   @ApiResponse({ status: 200, description: 'The user details.', type: CreateUserDto })
   @ApiResponse({ status: 404, description: 'User not found.' })
@@ -38,7 +35,6 @@ export class UsersController {
 
   @Put(':id')
   @UsePipes(new ValidationPipe())
-  @ApiOperation({ summary: 'Update a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, description: 'The user has been successfully updated.', type: CreateUserDto })
@@ -48,7 +44,6 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiParam({ name: 'id', description: 'User ID', type: Number })
   @ApiResponse({ status: 200, description: 'The user has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'User not found.' })

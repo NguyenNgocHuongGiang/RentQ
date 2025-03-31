@@ -2,13 +2,10 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { FaTimesCircle } from "react-icons/fa";
 import { getAuthData } from "../../utils/helpers";
-import {
-  createListingImage,
-  createNewPost,
-  uploadImages,
-} from "../../pages/UserTemplate/slice";
+import utilitiesData from "../../data/utilities_data.json";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
+import { createListingImage, createNewPost, uploadImages } from "../../store/slice/postSlice";
 
 export interface ImageFile {
   id: string;
@@ -23,20 +20,7 @@ export default function AddPostModal({
   setIsOpenAdd: (open: boolean) => void;
   onPostCreated: (data: any) => void;
 }) {
-  const utilitiesList = [
-    "Wi-fi",
-    "Parking",
-    "Swimming Pool",
-    "TV",
-    "Gym",
-    "Air Conditioning",
-    "Laundry",
-    "Elevator",
-    "Security 24/7",
-    "Hot Water",
-    "Balcony",
-    "Garden",
-  ];
+  const utilitiesList = utilitiesData.map((item) => item.name)
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -67,6 +51,7 @@ export default function AddPostModal({
       const formattedValues = {
         ...values,
         availableFrom: new Date(values.availableFrom),
+        description: values.description.replace(/\n/g, "\\n"),
       };
       setNewPost(formattedValues);
       setStep(2);

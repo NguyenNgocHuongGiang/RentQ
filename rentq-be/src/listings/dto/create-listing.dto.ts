@@ -18,12 +18,17 @@ export class CreateListingDto {
     @IsNotEmpty({ message: "Address is required" })
     address: string;
 
+    @ApiProperty({ example: "luxury-apartment", description: "Listing alias" })
+    @IsString()
+    @IsOptional()
+    alias: string;
+
     @ApiProperty({ example: 50, description: "Area (m²)" })
     @IsNumber()
     @IsNotEmpty({ message: "Area is required" })
     area: number;
 
-    @ApiProperty({ example: "15000000", description: "Price (VND)", type: String }) // Prisma uses Decimal
+    @ApiProperty({ example: 15000000, description: "Price (VND)", type: Number })
     @IsNumber() 
     @IsNotEmpty({ message: "Price is required" })
     price: number;

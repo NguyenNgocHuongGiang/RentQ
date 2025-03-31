@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
-import { getAuthData } from "../../../utils/helpers";
-import { getInfoUser, updateInfoUser } from "../slice";
+import { AppDispatch, RootState } from "../../../../store";
+import { getAuthData } from "../../../../utils/helpers";
+import { getInfoUser, updateInfoUser } from "../../../../store/slice/userSlice";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-
 
 export default function MyProfile() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,7 +26,7 @@ export default function MyProfile() {
     initialValues: {
       full_name: user?.full_name || "",
       email: user?.email || "",
-      phone: user?.phone || "", 
+      phone: user?.phone || "",
       address: user?.address || "",
     },
     validationSchema: Yup.object({
@@ -40,12 +39,14 @@ export default function MyProfile() {
     }),
     enableReinitialize: true,
     onSubmit: (values) => {
-      const updatedValues = { ...values }; 
+      const updatedValues = { ...values };
       const userData = getAuthData();
       if (userData?.userId) {
-        dispatch(updateInfoUser({ user_id: userData.userId, userData: updatedValues })).unwrap();
+        dispatch(
+          updateInfoUser({ user_id: userData.userId, userData: updatedValues })
+        ).unwrap();
       }
-      toast.success("Update successfully")
+      toast.success("Update successfully");
     },
   });
 

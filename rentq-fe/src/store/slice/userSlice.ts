@@ -1,12 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../utils/configApi";
-import {
-  DefaultState,
-  ListingImageType,
-  ListingsProperty,
-  RoleRequest,
-  RoleRequestType,
-} from "../../types/types";
+import { DefaultState, RoleRequest, RoleRequestType } from "../../types/types";
 
 export const getInfoUser = createAsyncThunk<any, number>(
   "user/getInfo",
@@ -65,54 +59,6 @@ export const getUserRole = createAsyncThunk<any, number>(
   }
 );
 
-export const createNewPost = createAsyncThunk<ListingsProperty>(
-  "user/createNewPost",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`listings`, credentials);
-      console.log(response.data.content);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Create failed!");
-    }
-  }
-);
-
-export const uploadImages = createAsyncThunk<string[], FileList>(
-  "user/uploadImages",
-  async (files, { rejectWithValue }) => {
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
-
-      const response = await api.post(`file-upload/multiple-files`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log(response);
-      return response.data.content.imageUrls;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Upload failed!");
-    }
-  }
-);
-
-export const createListingImage = createAsyncThunk<ListingImageType, ListingImageType>(
-  "user/createListingImage",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`listing-images`, credentials);
-      console.log(response);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Create failed!");
-    }
-  }
-);
-
 export const getUserListings = createAsyncThunk<any, number>(
   "user/getUserListings",
   async (user_id, { rejectWithValue }) => {
@@ -124,7 +70,6 @@ export const getUserListings = createAsyncThunk<any, number>(
     }
   }
 );
-
 
 const initialState: DefaultState = {
   loading: false,
@@ -175,20 +120,6 @@ const userSlice = createSlice({
       state.data = action.payload;
     });
     builder.addCase(createRoleRequest.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
-
-    //tao bai dang moi
-    builder.addCase(createNewPost.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(createNewPost.fulfilled, (state, action) => {
-      state.loading = false;
-      state.data = action.payload;
-    });
-    builder.addCase(createNewPost.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });

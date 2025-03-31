@@ -19,8 +19,13 @@ export class ListingsController {
     return this.listingsService.findAll();
   }
 
+  @Get("/detail/:alias")
+  findDetailListing(@Param('alias') alias: string) {
+    return this.listingsService.findOne(alias);
+  }
+
   @Get('/get-user-listings/:userId')
-  findOne(@Param('userId') userId: string) {
+  findUserListings(@Param('userId') userId: string) {
     return this.listingsService.findUserListings(+userId);
   }
 

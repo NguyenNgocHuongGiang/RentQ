@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { FaHome, FaClock, FaPlus, FaTimesCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../../../store";
-import { getAuthData } from "../../../utils/helpers";
-import { createRoleRequest, getUserListings, getUserRole } from "../slice";
-import { ListingsProperty, RoleRequest } from "../../../types/types";
+import { AppDispatch } from "../../../../store";
+import { getAuthData } from "../../../../utils/helpers";
+import {
+  createRoleRequest,
+  getUserListings,
+  getUserRole,
+} from "../../../../store/slice/userSlice";
+import { ListingsProperty, RoleRequest } from "../../../../types/types";
 import { toast } from "react-toastify";
-import AddPostModal from "../../../components/Modal/AddPostModal";
-import PostCard from "../../../components/Card/PostCard";
-import PolicyModal from "../../../components/Modal/PolicyModal";
+import AddPostModal from "../../../../components/Modal/AddPostModal";
+import PostCard from "../../../../components/Card/PostCard";
+import PolicyModal from "../../../../components/Modal/PolicyModal";
 
 export default function Posts() {
   const { data } = useSelector((state: any) => state.userReducer);
@@ -24,10 +28,7 @@ export default function Posts() {
 
   useEffect(() => {
     if (user) {
-      dispatch(getUserRole(user.userId)).unwrap();
-      dispatch(getUserListings(user.userId))
-        .unwrap()
-        .then((data) => setUserListings(data));
+      fetchData();
     }
   }, [dispatch]);
 
@@ -51,13 +52,15 @@ export default function Posts() {
   const handlePostCreated = (newPost: ListingsProperty) => {
     if (newPost) {
       setUserListings((prevListings) => [...(prevListings || []), newPost]);
-
-      dispatch(getUserRole(user.userId)).unwrap();
-
-      dispatch(getUserListings(user.userId))
-        .unwrap()
-        .then((data) => setUserListings(data));
+      fetchData();
     }
+  };
+
+  const fetchData = () => {
+    dispatch(getUserRole(user.userId)).unwrap();
+    dispatch(getUserListings(user.userId))
+      .unwrap()
+      .then((data) => setUserListings(data));
   };
 
   const filteredData = Array.isArray(listings)

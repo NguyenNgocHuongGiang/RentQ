@@ -98,12 +98,8 @@ export default function Profile() {
       <div className="w-5/6 min-h-96 p-6 ml-5 border rounded-lg shadow-md">
         {activeTab === "profile" && <MyProfile />}
         {activeTab === "posts" && <Posts />}
-        {activeTab === "bills" && (
-          <div>Bills</div>
-        )}
-        {activeTab === "settings-password" && (
-          <ChangePass />
-        )}
+        {activeTab === "bills" && <div>Bills</div>}
+        {activeTab === "settings-password" && <ChangePass />}
         {activeTab === "settings-notifications" && (
           <div>Notification settings...</div>
         )}
