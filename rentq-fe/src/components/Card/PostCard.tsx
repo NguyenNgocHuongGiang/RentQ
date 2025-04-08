@@ -13,6 +13,8 @@ const PostCard: React.FC<PostCardProps> = ({ listing }) => {
     listing.listing_images?.find((img) => img.is_main) ||
     listing.listing_images?.[0];
 
+  console.log(listing);
+
   return (
     <div
       onClick={() => navigate(`/detailpost/${listing.alias}`)}
@@ -22,21 +24,23 @@ const PostCard: React.FC<PostCardProps> = ({ listing }) => {
         <img
           src={mainImage.image_url}
           alt={listing.title}
-          className="w-full h-40 object-cover rounded-md mb-4"
+          className="w-full h-30 lg:h-40 object-cover rounded-md mb-4"
         />
       ) : (
-        <div className="w-full h-40 bg-gray-300 flex items-center justify-center text-gray-600">
+        <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600">
           No Image
         </div>
       )}
       <div className="text-md text-left font-semibold mb-2 flex items-center">
-                        <FaMapMarkerAlt className="mr-2 text-red-500 text-md" />
-          <p>{listing?.address}</p>
+        <FaMapMarkerAlt className="mr-2 text-red-500 text-md" />
+        <p>{listing?.address}</p>
       </div>
       <div className="flex justify-between">
         <div>
           <div className="text-gray-600 text-left text-md">
-            <span className="text-xl text-green-600 font-bold">{listing.price}</span> 
+            <span className="text-xl text-green-600 font-bold">
+              {listing.price}
+            </span>
             <span> VND/month</span>
           </div>
           <div className="flex mt-2 space-x-1 text-yellow-500">

@@ -5,23 +5,24 @@ import { AppDispatch } from "../../../../store";
 import { getAuthData } from "../../../../utils/helpers";
 import {
   createRoleRequest,
-  getUserListings,
   getUserRole,
 } from "../../../../store/slice/userSlice";
 import { ListingsProperty, RoleRequest } from "../../../../types/types";
 import { toast } from "react-toastify";
 import AddPostModal from "../../../../components/Modal/AddPostModal";
-import PostCard from "../../../../components/Card/PostCard";
 import PolicyModal from "../../../../components/Modal/PolicyModal";
+import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { deletePosts, getUserListings } from "../../../../store/slice/postSlice";
 
 export default function Posts() {
   const { data } = useSelector((state: any) => state.userReducer);
+  const {listings} = useSelector((state: any) => state.postReducer);
   const dispatch = useDispatch<AppDispatch>();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenAdd, setIsOpenAdd] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [listings, setUserListings] = useState<ListingsProperty[]>();
   const [searchTerm, setSearchTerm] = useState("");
 
   const user = getAuthData();
@@ -51,7 +52,6 @@ export default function Posts() {
 
   const handlePostCreated = (newPost: ListingsProperty) => {
     if (newPost) {
-      setUserListings((prevListings) => [...(prevListings || []), newPost]);
       fetchData();
     }
   };
@@ -60,12 +60,11 @@ export default function Posts() {
     dispatch(getUserRole(user.userId)).unwrap();
     dispatch(getUserListings(user.userId))
       .unwrap()
-      .then((data) => setUserListings(data));
   };
 
   const filteredData = Array.isArray(listings)
     ? listings.filter((listing: ListingsProperty) =>
-        listing.title.toLowerCase().includes(searchTerm.toLowerCase())
+        listing.address.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
@@ -123,14 +122,85 @@ export default function Posts() {
                 <input
                   type="text"
                   className="w-1/2 border border-gray-300 rounded-lg"
-                  placeholder="Search by title"
+                  placeholder="Search by address..."
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredData.map((listing: ListingsProperty) => (
-                  <PostCard key={listing.listing_id} listing={listing} />
-                ))}
+              <div className="">
+                <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                  <table className="w-full text-sm rtl:text-right text-gray-500 text-center">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-200">
+                      <tr>
+                        <th scope="col" className="px-6 py-3">
+                          Image
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Address
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Price
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Available From
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredData.map((listing: any) => (
+                        <tr className="odd:bg-white even:bg-gray-50 border-b border-gray-200">
+                          <td
+                            scope="row"
+                            className="px-6 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                          >
+                            <img
+                              className="w-15 h-15 rounded-lg"
+                              src={
+                                listing.listing_images?.find(
+                                  (item: any) => item.is_main
+                                )?.image_url
+                              }
+                              alt="hinh anh"
+                            />
+                          </td>
+                          <td className="px-6 py-2">{listing.address}</td>
+                          <td className="px-6 py-2">{listing.price}</td>
+                          <td className="px-6 py-2">
+                            {listing.available_from
+                              ? new Date(
+                                  listing.available_from
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-2 justify-center items-center h-full">
+                              <Link
+                                to = {`/detailpost/${listing.alias}`}
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                <FiEye size={20} />
+                              </Link>
+                              {/* <a
+                                href="#"
+                                className="text-yellow-500 hover:text-yellow-700"
+                              >
+                                <FiEdit size={20} />
+                              </a> */}
+                              <div
+                                onClick={() => dispatch(deletePosts(listing.listing_id))}
+                                className="text-red-500 hover:text-red-700 cursor-pointer"
+                              >
+                                <FiTrash2 size={20} />
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           ) : (

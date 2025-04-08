@@ -59,21 +59,12 @@ export const getUserRole = createAsyncThunk<any, number>(
   }
 );
 
-export const getUserListings = createAsyncThunk<any, number>(
-  "user/getUserListings",
-  async (user_id, { rejectWithValue }) => {
-    try {
-      const response = await api.get(`listings/get-user-listings/${user_id}`);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
-    }
-  }
-);
+
 
 const initialState: DefaultState = {
   loading: false,
   data: null,
+  listings: [],
   error: null,
 };
 

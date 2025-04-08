@@ -13,7 +13,16 @@ const routes: RouteConfig[] = [
     nested: [
       { path: "", element: lazy(() => import("./../pages/UserTemplate/Homepage"))},
       { path: "discovery", element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage"))},
-      { path: "profile", element: lazy(() => import("./../pages/UserTemplate/ProfilePage"))},
+      { 
+        path: "profile", 
+        element: lazy(() => import("./../pages/UserTemplate/ProfilePage")),
+        nested: [
+          { path: "", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyProfile")) },
+          { path: "posts", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/Posts")) },
+
+
+        ]
+      },
       { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
     ]
   },
@@ -28,6 +37,7 @@ const routes: RouteConfig[] = [
       { path: "verify-fail", element: lazy(() => import("../pages/AuthTemplate/Verification/verifyFail"))},
     ]
   },
+  
 ];
 
 export { routes };

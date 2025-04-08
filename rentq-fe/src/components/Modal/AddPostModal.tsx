@@ -69,6 +69,9 @@ export default function AddPostModal({
     const uploadedImages = await dispatch(
       uploadImages(convertToFileList(images))
     ).unwrap();
+
+    console.log(111111);
+    
     await dispatch(
       createListingImage({
         listing_id: data.listing_id!,
@@ -76,6 +79,9 @@ export default function AddPostModal({
         isMain: [true, false],
       })
     );
+
+    console.log(222222);
+    
     setIsOpenAdd(false);
     if (data) {
       onPostCreated(data);

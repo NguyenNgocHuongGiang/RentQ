@@ -1,63 +1,69 @@
+import { NavLink, Outlet } from "react-router-dom";
+import { FaChevronDown } from "react-icons/fa";
 import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa"; // Icon mũi tên dropdown
-import MyProfile from "./MyProfile";
-import ChangePass from "./ChangePass";
-import Posts from "./Posts";
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false); // Kiểm soát dropdown Settings
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <div className="max-w-6xl mx-auto p-6 flex">
       {/* Sidebar */}
-      <div className="w-1/6">
+      <div className="w-1/4 py-2">
         <ul className="space-y-2">
           {/* Profile */}
-          <li
-            onClick={() => setActiveTab("profile")}
-            className={`p-3 rounded-lg cursor-pointer ${
-              activeTab === "profile"
-                ? "bg-[#483507] text-white font-bold"
-                : "bg-[#c2bdb5] hover:bg-[#483507] hover:text-white"
-            }`}
-          >
-            Profile
+          <li>
+            <NavLink
+              to="/profile"
+              end
+              className={({ isActive }) =>
+                `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
+                  isActive
+                    ? "bg-[#483507] text-white font-semibold shadow-lg border-b-4 border-[#a57d38]"
+                    : "hover:bg-[#483507] hover:text-white hover:scale-105 bg-[#c2bdb5]"
+                }`
+              }
+            >
+              Profile
+            </NavLink>
           </li>
 
           {/* Your Posts */}
-          <li
-            onClick={() => setActiveTab("posts")}
-            className={`p-3 rounded-lg cursor-pointer ${
-              activeTab === "posts"
-                ? "bg-[#483507] text-white font-bold"
-                : "bg-[#c2bdb5] hover:bg-[#483507] hover:text-white"
-            }`}
-          >
-            Posts
+          <li>
+            <NavLink
+              to="/profile/posts"
+              className={({ isActive }) =>
+                `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
+                  isActive
+                    ? "bg-[#483507] text-white font-semibold shadow-lg border-b-4 border-[#a57d38]"
+                    : "hover:bg-[#483507] hover:text-white hover:scale-105 bg-[#c2bdb5]"
+                }`
+              }
+            >
+              Posts
+            </NavLink>
           </li>
 
           {/* Your Bills */}
-          <li
-            onClick={() => setActiveTab("bills")}
-            className={`p-3 rounded-lg cursor-pointer ${
-              activeTab === "bills"
-                ? "bg-[#483507] text-white font-bold"
-                : "bg-[#c2bdb5] hover:bg-[#483507] hover:text-white"
-            }`}
-          >
-            Bills
+          <li>
+            <NavLink
+              to="/profile/bills"
+              className={({ isActive }) =>
+                `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
+                  isActive
+                    ? "bg-[#483507] text-white font-semibold shadow-lg border-b-4 border-[#a57d38]"
+                    : "hover:bg-[#483507] hover:text-white hover:scale-105 bg-[#c2bdb5]"
+                }`
+              }
+            >
+              Bills
+            </NavLink>
           </li>
 
           {/* Settings Dropdown */}
           <li className="relative">
             <div
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className={`p-3 flex justify-between items-center rounded-lg cursor-pointer ${
-                activeTab.includes("settings")
-                  ? "bg-[#483507] text-white font-bold"
-                  : "bg-[#c2bdb5] hover:bg-[#483507] hover:text-white"
-              }`}
+              className="p-3 bg-[#c2bdb5] flex justify-between items-center rounded-lg cursor-pointer hover:bg-[#483507] hover:text-white transition duration-300 ease-in-out"
             >
               Settings
               <FaChevronDown
@@ -69,24 +75,30 @@ export default function Profile() {
 
             {/* Dropdown Content */}
             {isSettingsOpen && (
-              <ul className="absolute left-0 w-full mt-2 bg-white border rounded-lg shadow-md">
-                <li
-                  onClick={() => {
-                    setActiveTab("settings-password");
-                    setIsSettingsOpen(false);
-                  }}
-                  className="p-3 hover:bg-gray-200 cursor-pointer hover:rounded-lg"
-                >
-                  Change Password
+              <ul className="absolute left-0 w-full mt-2 bg-white text-black border border-gray-300 rounded-lg shadow-md transition duration-300 ease-in-out">
+                <li>
+                  <NavLink
+                    to="/settings/password"
+                    className={({ isActive }) =>
+                      `block p-3 hover:bg-gray-200 cursor-pointer rounded-lg transition duration-200 ease-in-out ${
+                        isActive ? "font-semibold" : ""
+                      }`
+                    }
+                  >
+                    Change Password
+                  </NavLink>
                 </li>
-                <li
-                  onClick={() => {
-                    setActiveTab("settings-notifications");
-                    setIsSettingsOpen(false);
-                  }}
-                  className="p-3 hover:bg-gray-200 cursor-pointer hover:rounded-lg"
-                >
-                  Notifications
+                <li>
+                  <NavLink
+                    to="/settings/notifications"
+                    className={({ isActive }) =>
+                      `block p-3 hover:bg-gray-200 cursor-pointer rounded-lg transition duration-200 ease-in-out ${
+                        isActive ? "font-semibold" : ""
+                      }`
+                    }
+                  >
+                    Notifications
+                  </NavLink>
                 </li>
               </ul>
             )}
@@ -95,14 +107,8 @@ export default function Profile() {
       </div>
 
       {/* Main Content */}
-      <div className="w-5/6 min-h-96 p-6 ml-5 border rounded-lg shadow-md">
-        {activeTab === "profile" && <MyProfile />}
-        {activeTab === "posts" && <Posts />}
-        {activeTab === "bills" && <div>Bills</div>}
-        {activeTab === "settings-password" && <ChangePass />}
-        {activeTab === "settings-notifications" && (
-          <div>Notification settings...</div>
-        )}
+      <div className="w-3/4 ml-5 p-6 border rounded-lg shadow-md">
+        <Outlet />
       </div>
     </div>
   );

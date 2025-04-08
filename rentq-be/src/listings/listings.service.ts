@@ -58,6 +58,7 @@ export class ListingsService {
         listing_id: true,
         title: true,
         address: true,
+        available_from: true,
         price: true,
         alias: true,
         description: true,
@@ -72,7 +73,11 @@ export class ListingsService {
   }
 
   async findAll() {
-    return this.prisma.listings.findMany();
+    return this.prisma.listings.findMany({
+      include:{
+        listing_images: true
+      }
+    });
   }
 
   async findOne(alias: string) {
@@ -80,19 +85,6 @@ export class ListingsService {
       where: { alias: alias },
       include: {
         listing_images: true, 
-        reviews: {
-          select: {
-            rating: true,
-            comment: true,
-            created_at: true,
-            users: {
-              select: {
-                full_name: true,
-                avatar_url: true
-              }
-            }
-          }
-        },
       },
     });
   }

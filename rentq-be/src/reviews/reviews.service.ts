@@ -30,6 +30,17 @@ export class ReviewsService {
     return this.prisma.reviews.findMany({
       where: {
         listing_id: id
+      },
+      select: {
+        comment: true,
+        rating: true,
+        created_at: true,
+        users: {
+          select: {
+            full_name: true,
+            avatar_url: true,
+          }
+        }
       }
     });
   }

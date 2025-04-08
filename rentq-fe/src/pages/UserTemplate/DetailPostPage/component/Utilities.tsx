@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import utilitiesData from "../../data/utilities_data.json";
+import utilitiesData from "./../../../../data/utilities_data.json";
 import * as Icons from "react-icons/fi";
 import { Modal, Button } from "antd";
 
@@ -33,7 +33,7 @@ const UtilitiesList: React.FC<UtilitiesListProps> = ({
   const remainingUtilities = utilities.slice(9);
 
   return (
-    <div className="w-4/5">
+    <div className="lg:w-4/5 w-full">
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 py-5">
         {visibleUtilities.map((utility, index) => {
           const IconComponent =

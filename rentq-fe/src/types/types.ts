@@ -1,6 +1,9 @@
 export type DefaultState = {
   loading: boolean;
   data: any;
+  reviewData? : any;
+  detailPost? : any;
+  listings? : ListingsProperty[];
   error: string | null;
 };
 
@@ -47,7 +50,23 @@ export type ListingsProperty = {
 };
 
 export type ListingImageType = {
-  listing_id: number;
+  listing_id?: number;
   images_url: string[];
   isMain: boolean[];
 }
+
+export type ReviewProperty = {
+  review_id?: number;
+  listing_id: number;
+  tenant_id: number;
+  rating: number;
+  comment:string;
+  users? : {}
+  created_at?: string;
+};
+
+
+export type ReviewPropertyList = {
+  reviewList : ReviewProperty[]
+};
+
