@@ -13,7 +13,7 @@ export default function Profile() {
           {/* Profile */}
           <li>
             <NavLink
-              to="/profile"
+              to="/me"
               end
               className={({ isActive }) =>
                 `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
@@ -30,7 +30,7 @@ export default function Profile() {
           {/* Your Posts */}
           <li>
             <NavLink
-              to="/profile/posts"
+              to="/me/save-posts"
               className={({ isActive }) =>
                 `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
                   isActive
@@ -39,14 +39,14 @@ export default function Profile() {
                 }`
               }
             >
-              Posts
+              Save posts
             </NavLink>
           </li>
 
           {/* Your Bills */}
           <li>
             <NavLink
-              to="/profile/bills"
+              to="/me/bills"
               className={({ isActive }) =>
                 `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
                   isActive

@@ -1,4 +1,5 @@
 CREATE DATABASE IF NOT EXISTS `RentQ`;
+
 USE `RentQ`;
 
 -- Bảng người dùng
@@ -24,12 +25,15 @@ CREATE TABLE role_requests (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Bảng tài sản cho thuê
-CREATE TABLE properties (
-    property_id INT PRIMARY KEY AUTO_INCREMENT,
+-- Bảng tin đăng
+CREATE TABLE listings (
+    listing_id INT PRIMARY KEY AUTO_INCREMENT,
     landlord_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
     address TEXT NOT NULL,
+    alias VARCHAR(255) NOT NULL,
     area FLOAT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
     utilities TEXT,
     max_people INT NOT NULL,
     furniture ENUM('full', 'basic', 'none') NOT NULL,
@@ -40,34 +44,21 @@ CREATE TABLE properties (
     FOREIGN KEY (landlord_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Bảng bài đăng
-CREATE TABLE posts (
-    post_id INT PRIMARY KEY AUTO_INCREMENT,
-    property_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    alias VARCHAR(255) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    description TEXT,
-    status ENUM('active', 'inactive') DEFAULT 'active',
-    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
-);
-
--- Hình ảnh của property
-CREATE TABLE property_images (
+-- Bảng hình ảnh của tin đăng
+CREATE TABLE listing_images (
     image_id INT PRIMARY KEY AUTO_INCREMENT,
-    property_id INT NOT NULL,
+    listing_id INT NOT NULL,
     image_url VARCHAR(255) NOT NULL,
     is_main BOOLEAN NOT NULL DEFAULT FALSE,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
 
--- Bảng hợp đồng thuê 
+-- Bảng hợp đồng thuê trọ
 CREATE TABLE contracts (
     contract_id INT PRIMARY KEY AUTO_INCREMENT,
-    property_id INT NOT NULL,
+    listing_id INT NOT NULL,
+    tenant_id INT NOT NULL,
     landlord_id INT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
@@ -78,20 +69,12 @@ CREATE TABLE contracts (
     contract_file_url VARCHAR(255),
     terms_and_conditions TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE,
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
+    FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (landlord_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Bảng trung gian: Liên kết hợp đồng với nhiều người thuê
-CREATE TABLE contract_tenants (
-    contract_id INT NOT NULL,
-    tenant_id INT NOT NULL,
-    PRIMARY KEY (contract_id, tenant_id),
-    FOREIGN KEY (contract_id) REFERENCES contracts(contract_id) ON DELETE CASCADE,
-    FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-
--- Hóa đơn
+-- Bảng hóa đơn
 CREATE TABLE bills (
     bill_id INT PRIMARY KEY AUTO_INCREMENT,
     contract_id INT NOT NULL,
@@ -105,7 +88,7 @@ CREATE TABLE bills (
     FOREIGN KEY (contract_id) REFERENCES contracts(contract_id) ON DELETE CASCADE
 );
 
--- Thanh toán
+-- Bảng thanh toán
 CREATE TABLE payments (
     payment_id INT PRIMARY KEY AUTO_INCREMENT,
     bill_id INT NOT NULL,
@@ -117,7 +100,7 @@ CREATE TABLE payments (
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Tin nhắn
+-- Bảng tin nhắn
 CREATE TABLE messages (
     message_id INT PRIMARY KEY AUTO_INCREMENT,
     sender_id INT NOT NULL,
@@ -128,19 +111,19 @@ CREATE TABLE messages (
     FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Yêu cầu tìm bạn cùng phòng
+-- Bảng yêu cầu tìm bạn cùng phòng
 CREATE TABLE roommate_requests (
     request_id INT PRIMARY KEY AUTO_INCREMENT,
     tenant_id INT NOT NULL,
-    property_id INT NOT NULL,
+    listing_id INT NOT NULL,
     description TEXT,
     status ENUM('open', 'closed') NOT NULL DEFAULT 'open',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
 
--- Tìm kiếm bạn cùng phòng
+-- Bảng tìm kiếm bạn cùng phòng
 CREATE TABLE roommate_finder (
     finder_id INT PRIMARY KEY AUTO_INCREMENT,
     tenant_id INT NOT NULL,
@@ -153,31 +136,31 @@ CREATE TABLE roommate_finder (
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Đánh giá
+-- Bảng đánh giá
 CREATE TABLE reviews (
     review_id INT PRIMARY KEY AUTO_INCREMENT,
-    property_id INT NOT NULL,
+    listing_id INT NOT NULL,
     tenant_id INT NOT NULL,
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE,
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Báo cáo
+-- Bảng báo cáo
 CREATE TABLE reports (
     report_id INT PRIMARY KEY AUTO_INCREMENT,
     reporter_id INT NOT NULL,
-    reported_property_id INT NOT NULL,
+    reported_listing_id INT NOT NULL,
     reason TEXT NOT NULL,
     status ENUM('pending', 'resolved') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (reported_property_id) REFERENCES properties(property_id) ON DELETE CASCADE
+    FOREIGN KEY (reported_listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );
 
--- Thông báo
+-- Bảng thông báo
 CREATE TABLE notifications (
     notification_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -187,14 +170,14 @@ CREATE TABLE notifications (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- Yêu cầu chuyển nhượng phòng
+-- Bảng chuyển nhượng phòng
 CREATE TABLE room_transfer_requests (
     transfer_id INT PRIMARY KEY AUTO_INCREMENT,
     tenant_id INT NOT NULL,
-    property_id INT NOT NULL,
+    listing_id INT NOT NULL,
     description TEXT NOT NULL,
     status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tenant_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE
 );

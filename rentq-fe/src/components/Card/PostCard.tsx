@@ -1,26 +1,26 @@
 import { useNavigate } from "react-router-dom";
-import { ListingsProperty } from "../../types/types";
+import { ActivePostType } from "../../types/types";
 import { Bookmark } from "lucide-react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
 interface PostCardProps {
-  listing: ListingsProperty;
+  listing: ActivePostType;
 }
 
 const PostCard: React.FC<PostCardProps> = ({ listing }) => {
   const navigate = useNavigate();
-  const mainImage =
-    listing.listing_images?.find((img) => img.is_main) ||
-    listing.listing_images?.[0];
+  // const mainImage =
+  //   listing.listing_images?.find((img) => img.is_main) ||
+  //   listing.listing_images?.[0];
 
-  console.log(listing);
+  // console.log(listing);
 
   return (
     <div
       onClick={() => navigate(`/detailpost/${listing.alias}`)}
       className="hover:scale-108 transition-transform duration-200 bg-white shadow-lg rounded-lg overflow-hidden p-4 hover:cursor-pointer"
     >
-      {mainImage ? (
+      {/* {mainImage ? (
         <img
           src={mainImage.image_url}
           alt={listing.title}
@@ -30,10 +30,13 @@ const PostCard: React.FC<PostCardProps> = ({ listing }) => {
         <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600">
           No Image
         </div>
-      )}
+      )} */}
+       <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600">
+          No Image
+        </div>
       <div className="text-md text-left font-semibold mb-2 flex items-center">
         <FaMapMarkerAlt className="mr-2 text-red-500 text-md" />
-        <p>{listing?.address}</p>
+        <p>{listing?.properties.address}</p>
       </div>
       <div className="flex justify-between">
         <div>

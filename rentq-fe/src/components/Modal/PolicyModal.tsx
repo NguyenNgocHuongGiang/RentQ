@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import policyData from "./../../data/policy.json"; // Import JSON file
+import { useEffect, useState } from "react";
+import { Modal, Checkbox } from "antd";
+import policyData from "./../../data/policy.json";
 
 const PolicyModal = ({
   setIsOpen,
@@ -15,54 +16,48 @@ const PolicyModal = ({
   const [policies, setPolicies] = useState<string[]>([]);
 
   useEffect(() => {
-    setPolicies(policyData); // Load policies từ JSON
+    setPolicies(policyData);
   }, []);
 
   return (
-    <div className="z-50 text-left fixed inset-0 flex items-center justify-center bg-amber-50/5 backdrop-blur-sm text-[#483507]">
-      <div className="max-h-120 overflow-y-auto text-md bg-white p-6 rounded-lg shadow-2xl shadow-black/50 transform transition-all scale-95 animate-fade-in">
-        <h2 className="text-2xl font-semibold">Rental Registration Policy</h2>
-        <p className="mt-2">
-          Before proceeding, you must agree to the following terms and conditions:
-        </p>
-        <ul className="list-disc list-inside mt-3 space-y-2">
-          {policies.map((policy, index) => (
-            <li key={index}>{policy}</li>
-          ))}
-        </ul>
-
-        <div className="flex items-center mt-4">
-          <input
-            onChange={(e) => setAgreed(e.target.checked)}
-            type="checkbox"
-            id="agree"
-            checked={agreed}
-            className="mr-2"
-          />
-          <label htmlFor="agree" className="text-sm">I agree to the policy</label>
+    <Modal
+      title={
+        <div className="text-[#483507] text-xl font-semibold uppercase text-center mt-2 mb-4">
+          Rental Registration Policy
         </div>
+      }
+      open={true}
+      onCancel={() => setIsOpen(false)}
+      onOk={handleSubmit}
+      okText="Register"
+      cancelText="Cancel"
+      width={600}
+      okButtonProps={{
+        disabled: !agreed,
+        type: "default",
+        style: agreed
+          ? { backgroundColor: "#483507", color: "white", border: "none" }
+          : { backgroundColor: "#ccc", color: "#666", cursor: "not-allowed" },
+      }}
+    >
+      <p className="text-[#483507] mt-2">
+        Before proceeding, you must agree to the following terms and conditions:
+      </p>
+      <ul className="list-disc list-inside mt-3 space-y-2 text-[#6b4e2f]">
+        {policies.map((policy, index) => (
+          <li key={index}>{policy}</li>
+        ))}
+      </ul>
 
-        <div className="flex justify-end mt-4 space-x-2">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 hover:cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!agreed}
-            className={`px-4 py-2 rounded-lg ${
-              agreed
-                ? "bg-[#483507] text-white hover:bg-[#483507] hover:cursor-pointer"
-                : "bg-gray-400 cursor-not-allowed hover:cursor-pointer"
-            }`}
-          >
-            Register
-          </button>
-        </div>
+      <div className="mt-4">
+        <Checkbox
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+        >
+          I agree to the policy
+        </Checkbox>
       </div>
-    </div>
+    </Modal>
   );
 };
 

@@ -24,64 +24,25 @@ model bills {
 }
 
 model contracts {
-  contract_id                        Int              @id @default(autoincrement())
-  listing_id                         Int
-  tenant_id                          Int
+  contract_id                        Int                @id @default(autoincrement())
+  property_id                        Int
   landlord_id                        Int
-  start_date                         DateTime         @db.Date
-  end_date                           DateTime         @db.Date
-  actual_move_in_date                DateTime?        @db.Date
-  deposit                            Decimal          @db.Decimal(10, 2)
-  rent                               Decimal          @db.Decimal(10, 2)
-  status                             contracts_status @default(pending)
-  contract_file_url                  String?          @db.VarChar(255)
-  terms_and_conditions               String?          @db.Text
-  created_at                         DateTime?        @default(now()) @db.Timestamp(0)
+  start_date                         DateTime           @db.Date
+  end_date                           DateTime           @db.Date
+  actual_move_in_date                DateTime?          @db.Date
+  deposit                            Decimal            @db.Decimal(10, 2)
+  rent                               Decimal            @db.Decimal(10, 2)
+  status                             contracts_status   @default(pending)
+  contract_file_url                  String?            @db.VarChar(255)
+  terms_and_conditions               String?            @db.Text
+  created_at                         DateTime?          @default(now()) @db.Timestamp(0)
   bills                              bills[]
-  listings                           listings         @relation(fields: [listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "contracts_ibfk_1")
-  users_contracts_tenant_idTousers   users            @relation("contracts_tenant_idTousers", fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "contracts_ibfk_2")
-  users_contracts_landlord_idTousers users            @relation("contracts_landlord_idTousers", fields: [landlord_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "contracts_ibfk_3")
+  contract_tenants                   contract_tenants[]
+  properties                         properties         @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "contracts_ibfk_1")
+  users_contracts_landlord_idTousers users              @relation("contracts_landlord_idTousers", fields: [landlord_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "contracts_ibfk_3")
 
   @@index([landlord_id], map: "landlord_id")
-  @@index([listing_id], map: "listing_id")
-  @@index([tenant_id], map: "tenant_id")
-}
-
-model listing_images {
-  image_id    Int       @id @default(autoincrement())
-  listing_id  Int
-  image_url   String    @db.VarChar(255)
-  is_main     Boolean   @default(false)
-  uploaded_at DateTime? @default(now()) @db.Timestamp(0)
-  listings    listings  @relation(fields: [listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "listing_images_ibfk_1")
-
-  @@index([listing_id], map: "listing_id")
-}
-
-model listings {
-  listing_id             Int                      @id @default(autoincrement())
-  landlord_id            Int
-  title                  String                   @db.VarChar(255)
-  address                String                   @db.Text
-  alias                  String                   @db.VarChar(255)
-  area                   Float                    @db.Float
-  price                  Decimal                  @db.Decimal(10, 2)
-  utilities              String?                  @db.Text
-  max_people             Int
-  furniture              listings_furniture
-  available_from         DateTime                 @db.Date
-  property_type          listings_property_type   @default(apartment)
-  description            String?                  @db.Text
-  created_at             DateTime?                @default(now()) @db.Timestamp(0)
-  contracts              contracts[]
-  listing_images         listing_images[]
-  users                  users                    @relation(fields: [landlord_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "listings_ibfk_1")
-  reports                reports[]
-  reviews                reviews[]
-  room_transfer_requests room_transfer_requests[]
-  roommate_requests      roommate_requests[]
-
-  @@index([landlord_id], map: "landlord_id")
+  @@index([property_id], map: "property_id")
 }
 
 model messages {
@@ -123,32 +84,32 @@ model payments {
 }
 
 model reports {
-  report_id           Int            @id @default(autoincrement())
-  reporter_id         Int
-  reported_listing_id Int
-  reason              String         @db.Text
-  status              reports_status @default(pending)
-  created_at          DateTime?      @default(now()) @db.Timestamp(0)
-  users               users          @relation(fields: [reporter_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "reports_ibfk_1")
-  listings            listings       @relation(fields: [reported_listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "reports_ibfk_2")
+  report_id            Int            @id @default(autoincrement())
+  reporter_id          Int
+  reported_property_id Int
+  reason               String         @db.Text
+  status               reports_status @default(pending)
+  created_at           DateTime?      @default(now()) @db.Timestamp(0)
+  users                users          @relation(fields: [reporter_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "reports_ibfk_1")
+  properties           properties     @relation(fields: [reported_property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "reports_ibfk_2")
 
-  @@index([reported_listing_id], map: "reported_listing_id")
   @@index([reporter_id], map: "reporter_id")
+  @@index([reported_property_id], map: "reported_property_id")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reviews {
-  review_id  Int       @id @default(autoincrement())
-  listing_id Int
-  tenant_id  Int
-  rating     Int?
-  comment    String?   @db.Text
-  created_at DateTime? @default(now()) @db.Timestamp(0)
-  listings   listings  @relation(fields: [listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "reviews_ibfk_1")
-  users      users     @relation(fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "reviews_ibfk_2")
+  review_id   Int        @id @default(autoincrement())
+  property_id Int
+  tenant_id   Int
+  rating      Int?
+  comment     String?    @db.Text
+  created_at  DateTime?  @default(now()) @db.Timestamp(0)
+  properties  properties @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "reviews_ibfk_1")
+  users       users      @relation(fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "reviews_ibfk_2")
 
-  @@index([listing_id], map: "listing_id")
   @@index([tenant_id], map: "tenant_id")
+  @@index([property_id], map: "property_id")
 }
 
 model role_requests {
@@ -164,15 +125,15 @@ model role_requests {
 model room_transfer_requests {
   transfer_id Int                           @id @default(autoincrement())
   tenant_id   Int
-  listing_id  Int
+  property_id Int
   description String                        @db.Text
   status      room_transfer_requests_status @default(pending)
   created_at  DateTime?                     @default(now()) @db.Timestamp(0)
   users       users                         @relation(fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "room_transfer_requests_ibfk_1")
-  listings    listings                      @relation(fields: [listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "room_transfer_requests_ibfk_2")
+  properties  properties                    @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "room_transfer_requests_ibfk_2")
 
-  @@index([listing_id], map: "listing_id")
   @@index([tenant_id], map: "tenant_id")
+  @@index([property_id], map: "property_id")
 }
 
 model roommate_finder {
@@ -192,15 +153,15 @@ model roommate_finder {
 model roommate_requests {
   request_id  Int                      @id @default(autoincrement())
   tenant_id   Int
-  listing_id  Int
+  property_id Int
   description String?                  @db.Text
   status      roommate_requests_status @default(open)
   created_at  DateTime?                @default(now()) @db.Timestamp(0)
   users       users                    @relation(fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "roommate_requests_ibfk_1")
-  listings    listings                 @relation(fields: [listing_id], references: [listing_id], onDelete: Cascade, onUpdate: NoAction, map: "roommate_requests_ibfk_2")
+  properties  properties               @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "roommate_requests_ibfk_2")
 
-  @@index([listing_id], map: "listing_id")
   @@index([tenant_id], map: "tenant_id")
+  @@index([property_id], map: "property_id")
 }
 
 model users {
@@ -214,19 +175,79 @@ model users {
   role                                   users_role               @default(tenant)
   is_verified                            Boolean                  @default(false)
   created_at                             DateTime?                @default(now()) @db.Timestamp(0)
-  contracts_contracts_tenant_idTousers   contracts[]              @relation("contracts_tenant_idTousers")
+  contract_tenants                       contract_tenants[]
   contracts_contracts_landlord_idTousers contracts[]              @relation("contracts_landlord_idTousers")
-  listings                               listings[]
   messages_messages_sender_idTousers     messages[]               @relation("messages_sender_idTousers")
   messages_messages_receiver_idTousers   messages[]               @relation("messages_receiver_idTousers")
   notifications                          notifications[]
   payments                               payments[]
+  properties                             properties[]
   reports                                reports[]
   reviews                                reviews[]
   role_requests                          role_requests[]
   room_transfer_requests                 room_transfer_requests[]
   roommate_finder                        roommate_finder[]
   roommate_requests                      roommate_requests[]
+}
+
+model posts {
+  post_id     Int           @id @default(autoincrement())
+  property_id Int
+  title       String        @db.VarChar(255)
+  alias       String        @db.VarChar(255)
+  price       Decimal       @db.Decimal(10, 2)
+  description String?       @db.Text
+  status      posts_status? @default(active)
+  is_approved Boolean       @default(false)
+  created_at  DateTime?     @default(now()) @db.Timestamp(0)
+  properties  properties    @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "posts_ibfk_1")
+
+  @@index([property_id], map: "property_id")
+}
+
+model properties {
+  property_id            Int                      @id @default(autoincrement())
+  landlord_id            Int
+  address                String                   @db.Text
+  area                   Float                    @db.Float
+  utilities              String?                  @db.Text
+  max_people             Int
+  furniture              properties_furniture
+  available_from         DateTime                 @db.Date
+  property_type          properties_property_type @default(apartment)
+  description            String?                  @db.Text
+  created_at             DateTime?                @default(now()) @db.Timestamp(0)
+  contracts              contracts[]
+  posts                  posts[]
+  users                  users                    @relation(fields: [landlord_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "properties_ibfk_1")
+  property_images        property_images[]
+  reports                reports[]
+  reviews                reviews[]
+  room_transfer_requests room_transfer_requests[]
+  roommate_requests      roommate_requests[]
+
+  @@index([landlord_id], map: "landlord_id")
+}
+
+model property_images {
+  image_id    Int        @id @default(autoincrement())
+  property_id Int
+  image_url   String     @db.VarChar(255)
+  is_main     Boolean    @default(false)
+  uploaded_at DateTime?  @default(now()) @db.Timestamp(0)
+  properties  properties @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction, map: "property_images_ibfk_1")
+
+  @@index([property_id], map: "property_id")
+}
+
+model contract_tenants {
+  contract_id Int
+  tenant_id   Int
+  contracts   contracts @relation(fields: [contract_id], references: [contract_id], onDelete: Cascade, onUpdate: NoAction, map: "contract_tenants_ibfk_1")
+  users       users     @relation(fields: [tenant_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "contract_tenants_ibfk_2")
+
+  @@id([contract_id, tenant_id])
+  @@index([tenant_id], map: "tenant_id")
 }
 
 enum role_requests_status {
@@ -287,19 +308,24 @@ enum users_role {
   tenant
 }
 
-enum listings_furniture {
-  full
-  basic
-  none
-}
-
 enum contracts_status {
   active
   terminated
   pending
 }
 
-enum listings_property_type {
+enum posts_status {
+  active
+  inactive
+}
+
+enum properties_furniture {
+  full
+  basic
+  none
+}
+
+enum properties_property_type {
   apartment
   house
   office

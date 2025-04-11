@@ -1,39 +1,39 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../utils/configApi";
 import {
+  ActivePostType,
   DefaultState,
-  ListingImageType,
-  ListingsProperty,
-  ReviewProperty,
-  ReviewPropertyList,
+  // ListingImageType,
+  // ListingsProperty,
+  // ReviewProperty,
 } from "../../types/types";
 import { getAuthData } from "../../utils/helpers";
 
-export const createNewPost = createAsyncThunk<ListingsProperty>(
-  "posts/createNewPost",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`listings`, credentials);
-      console.log(response.data.content);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Create failed!");
-    }
-  }
-);
+// export const createNewPost = createAsyncThunk<ListingsProperty>(
+//   "posts/createNewPost",
+//   async (credentials, { rejectWithValue }) => {
+//     try {
+//       const response = await api.post(`listings`, credentials);
+//       console.log(response.data.content);
+//       return response.data.content;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data || "Create failed!");
+//     }
+//   }
+// );
 
-export const deletePosts = createAsyncThunk<ListingsProperty, number>(
-  "posts/deletePosts",
-  async (listingId, { rejectWithValue }) => {
-    try {
-      const response = await api.delete(`listings/${listingId}`);
-      console.log(response.data.content);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Xóa thất bại!");
-    }
-  }
-);
+// export const deletePosts = createAsyncThunk<ListingsProperty, number>(
+//   "posts/deletePosts",
+//   async (listingId, { rejectWithValue }) => {
+//     try {
+//       const response = await api.delete(`listings/${listingId}`);
+//       console.log(response.data.content);
+//       return response.data.content;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data || "Xóa thất bại!");
+//     }
+//   }
+// );
 
 export const uploadImages = createAsyncThunk<string[], FileList>(
   "posts/uploadImages",
@@ -57,18 +57,18 @@ export const uploadImages = createAsyncThunk<string[], FileList>(
   }
 );
 
-export const createListingImage = createAsyncThunk<
-  ListingImageType,
-  ListingImageType
->("posts/createListingImage", async (credentials, { rejectWithValue }) => {
-  try {
-    const response = await api.post(`listing-images`, credentials);
-    console.log(response);
-    return response.data.content;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data || "Create failed!");
-  }
-});
+// export const createListingImage = createAsyncThunk<
+//   ListingImageType,
+//   ListingImageType
+// >("posts/createListingImage", async (credentials, { rejectWithValue }) => {
+//   try {
+//     const response = await api.post(`listing-images`, credentials);
+//     console.log(response);
+//     return response.data.content;
+//   } catch (error: any) {
+//     return rejectWithValue(error.response?.data || "Create failed!");
+//   }
+// });
 
 export const getDetailListings = createAsyncThunk<any, string>(
   "posts/getDetailListings",
@@ -83,37 +83,37 @@ export const getDetailListings = createAsyncThunk<any, string>(
   }
 );
 
-export const getReviewListings = createAsyncThunk<ReviewPropertyList, number>(
-  "posts/getReviewListings",
-  async (listingId, { rejectWithValue }) => {
-    try {
-      const response = await api.get(`reviews/${listingId}`);
-      console.log(response.data.content);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
-    }
-  }
-);
+// export const getReviewListings = createAsyncThunk<ReviewProperty[], number>(
+//   "posts/getReviewListings",
+//   async (listingId, { rejectWithValue }) => {
+//     try {
+//       const response = await api.get(`reviews/${listingId}`);
+//       console.log(response.data.content);
+//       return response.data.content;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
+//     }
+//   }
+// );
 
-export const createNewReview = createAsyncThunk<ReviewProperty, ReviewProperty>(
-  "posts/createNewReview",
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await api.post(`reviews`, credentials);
-      console.log(response.data.content);
-      return response.data.content;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Create failed!");
-    }
-  }
-);
+// export const createNewReview = createAsyncThunk<ReviewProperty, ReviewProperty>(
+//   "posts/createNewReview",
+//   async (credentials, { rejectWithValue }) => {
+//     try {
+//       const response = await api.post(`reviews`, credentials);
+//       console.log(response.data.content);
+//       return response.data.content;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data || "Create failed!");
+//     }
+//   }
+// );
 
-export const getPopularListings = createAsyncThunk<ListingsProperty[]>(
+export const getPopularListings = createAsyncThunk<ActivePostType[]>(
   "posts/getPopularListings",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("listings");
+      const response = await api.get("posts/active");
       console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
@@ -137,7 +137,7 @@ export const getUserListings = createAsyncThunk<any, number>(
 const initialState: DefaultState = {
   loading: false,
   data: null,
-  listings: [] as ListingsProperty[],
+  posts: [] as ActivePostType[],
   reviewData: null,
   detailPost: null,
   error: null,
@@ -169,7 +169,7 @@ const postSlice = createSlice({
     });
     builder.addCase(getUserListings.fulfilled, (state, action) => {
       state.loading = false;
-      state.listings = action.payload;
+      state.posts = action.payload;
     });
     builder.addCase(getUserListings.rejected, (state, action) => {
       state.loading = false;
@@ -177,18 +177,18 @@ const postSlice = createSlice({
     });
 
     //tao bai dang moi
-    builder.addCase(createNewPost.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(createNewPost.fulfilled, (state, action) => {
-      state.loading = false;
-      state.listings = [...(state.listings || []), action.payload];
-    });
-    builder.addCase(createNewPost.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    // builder.addCase(createNewPost.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // });
+    // builder.addCase(createNewPost.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.posts = [...(state.posts || []), action.payload];
+    // });
+    // builder.addCase(createNewPost.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload as string;
+    // });
 
     //lay thong tin chi tiet listings
     builder.addCase(getDetailListings.pending, (state) => {
@@ -204,58 +204,58 @@ const postSlice = createSlice({
       state.error = action.payload as string;
     });
 
-    //lay review listings
-    builder.addCase(getReviewListings.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(getReviewListings.fulfilled, (state, action) => {
-      state.loading = false;
-      state.reviewData = action.payload;
-    });
-    builder.addCase(getReviewListings.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    // //lay review listings
+    // builder.addCase(getReviewListings.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // });
+    // builder.addCase(getReviewListings.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   state.reviewData = action.payload;
+    // });
+    // builder.addCase(getReviewListings.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload as string;
+    // });
 
-    // tao moi review
-    builder.addCase(createNewReview.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(createNewReview.fulfilled, (state, action) => {
-      state.loading = false;
-      const userInfo = getAuthData();
-      const newReview = {
-        ...action.payload,
-        users: {
-          full_name: userInfo?.userName,
-          avatar_url: userInfo?.avatar,
-        },
-      };
-      state.reviewData = [...(state.reviewData || []), newReview];
-    });
-    builder.addCase(createNewReview.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    // // tao moi review
+    // builder.addCase(createNewReview.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // });
+    // builder.addCase(createNewReview.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   const userInfo = getAuthData();
+    //   const newReview = {
+    //     ...action.payload,
+    //     users: {
+    //       full_name: userInfo?.userName,
+    //       avatar_url: userInfo?.avatar,
+    //     },
+    //   };
+    //   state.reviewData = [...(state.reviewData || []), newReview];
+    // });
+    // builder.addCase(createNewReview.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload as string;
+    // });
 
     //xoa bai dang
-    builder.addCase(deletePosts.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(deletePosts.fulfilled, (state, action) => {
-      state.loading = false;
-      const deletedId = action.payload.listing_id;
-      state.listings = (state.listings ?? []).filter(
-        (item: ListingsProperty) => item.listing_id !== deletedId
-      );
-    });
-    builder.addCase(deletePosts.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    // builder.addCase(deletePosts.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // });
+    // builder.addCase(deletePosts.fulfilled, (state, action) => {
+    //   state.loading = false;
+    //   const deletedId = action.payload.listing_id;
+    //   state.listings = (state.listings ?? []).filter(
+    //     (item: ListingsProperty) => item.listing_id !== deletedId
+    //   );
+    // });
+    // builder.addCase(deletePosts.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload as string;
+    // });
   },
 });
 

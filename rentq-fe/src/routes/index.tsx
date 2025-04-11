@@ -13,18 +13,24 @@ const routes: RouteConfig[] = [
     nested: [
       { path: "", element: lazy(() => import("./../pages/UserTemplate/Homepage"))},
       { path: "discovery", element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage"))},
+      { path: "request-role", element: lazy(() => import("./../pages/UserTemplate/RequestRole"))},
       { 
-        path: "profile", 
+        path: "me", 
         element: lazy(() => import("./../pages/UserTemplate/ProfilePage")),
         nested: [
           { path: "", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyProfile")) },
-          { path: "posts", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/Posts")) },
-
-
+          { path: "save-posts", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/Posts")) },
         ]
       },
       { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
     ]
+  },
+  {
+    path: "/manage",
+    element: lazy(() => import("./../pages/AdminTemplate")),
+    nested: [
+
+    ],
   },
   {
     path: "/auth",

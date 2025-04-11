@@ -4,7 +4,6 @@
   { "name": "Air Conditioning", "icon": "FiWind" },
   { "name": "Heating", "icon": "FiThermometer" },
   { "name": "Elevator", "icon": "FiArrowUp" },
-  { "name": "Parking", "icon": "FiTruck" },
   { "name": "Swimming Pool", "icon": "FiDroplet" },
   { "name": "Gym", "icon": "FiActivity" },
   { "name": "Balcony", "icon": "FiHome" },

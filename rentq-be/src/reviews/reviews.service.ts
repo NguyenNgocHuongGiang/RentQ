@@ -5,31 +5,31 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ReviewsService {
-  prisma = new PrismaClient()
+  prisma = new PrismaClient();
 
   async create(createReviewDto: CreateReviewDto) {
-    const listings = await this.prisma.listings.findFirst({
+    const property = await this.prisma.properties.findFirst({
       where: {
-        listing_id: createReviewDto.listing_id
-      }
+        property_id: createReviewDto.property_id,
+      },
     });
-    const host = listings?.landlord_id;
+    const host = property?.landlord_id;
     if (createReviewDto.tenant_id === host) {
-      throw new BadRequestException("You cannot review your own listing.");
+      throw new BadRequestException('You cannot review your own listing.');
     }
     return this.prisma.reviews.create({
-      data: createReviewDto
-    })
+      data: createReviewDto,
+    });
   }
 
   // findAll() {
   //   return `This action returns all reviews`;
   // }
 
-  async findListingReview(id: number) {
+  async findPropertyReview(id: number) {
     return this.prisma.reviews.findMany({
       where: {
-        listing_id: id
+        property_id: id,
       },
       select: {
         comment: true,
@@ -39,9 +39,9 @@ export class ReviewsService {
           select: {
             full_name: true,
             avatar_url: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
@@ -49,7 +49,11 @@ export class ReviewsService {
   //   return `This action updates a #${id} review`;
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} review`;
-  // }
+  async remove(id: number) {
+    return this.prisma.reviews.delete({
+      where: {
+        review_id: id,
+      },
+    });
+  }
 }

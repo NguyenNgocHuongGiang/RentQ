@@ -3,10 +3,10 @@ import { IsNotEmpty, IsNumber, IsOptional, IsEnum, IsString, IsDate } from "clas
 import { Type } from "class-transformer";  
 
 export class CreateReviewDto {
-    @ApiProperty({ example: 1, description: "Listing's ID" })
+    @ApiProperty({ example: 1, description: "Property's ID" })
     @IsNumber()
-    @IsNotEmpty({ message: "Listing ID is required" })
-    listing_id: number;
+    @IsNotEmpty({ message: "Property ID is required" })
+    property_id: number;
 
     @ApiProperty({ example: 1, description: "Tenant's ID" })
     @IsNumber()

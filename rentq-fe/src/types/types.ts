@@ -3,7 +3,7 @@ export type DefaultState = {
   data: any;
   reviewData? : any;
   detailPost? : any;
-  listings? : ListingsProperty[];
+  posts? : ActivePostType[];
   error: string | null;
 };
 
@@ -32,41 +32,42 @@ export interface RoleRequest {
   status: "pending" | "approved" | "rejected";
 }
 
-export type ListingsProperty = {
-  listing_id?: number;
-  landlordId: number;
+export type PostsType = {
+  post_id?: number;
   title: string;
-  address: string;
-  alias:string;
-  area: number;
-  price: number;
-  utilities: string;
-  maxPeople: number;
-  furniture: "full" | "partial" | "none";
-  availableFrom: Date;
-  propertyType: "apartment" | "house" | "office" | "storefront";
   description: string;
-  listing_images?: { image_url: string, is_main?: boolean }[];
-};
-
-export type ListingImageType = {
-  listing_id?: number;
-  images_url: string[];
-  isMain: boolean[];
+  price: number;
+  property_id: number;
+  status: boolean;
+  is_approved: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export type ReviewProperty = {
-  review_id?: number;
-  listing_id: number;
-  tenant_id: number;
-  rating: number;
-  comment:string;
-  users? : {}
-  created_at?: string;
+export type ActivePostType = {
+  price: number;
+  alias: string;
+  properties: {
+    address: string;
+    area: number;
+    reviews: any[]; 
+    property_images: any[]; 
+  };
 };
 
 
-export type ReviewPropertyList = {
-  reviewList : ReviewProperty[]
-};
+// export type ListingImageType = {
+//   listing_id?: number;
+//   images_url: string[];
+//   isMain: boolean[];
+// }
 
+// export type ReviewProperty = {
+//   review_id?: number;
+//   listing_id: number;
+//   tenant_id: number;
+//   rating: number;
+//   comment:string;
+//   users? : {}
+//   created_at?: string;
+// };

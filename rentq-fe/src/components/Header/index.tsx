@@ -8,18 +8,53 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
+import { getInfoUser } from "../../store/slice/userSlice";
+import { AppDispatch } from "../../store";
+import { useDispatch } from "react-redux";
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [role, setRole] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     const userData = getAuthData();
+    console.log(userData.userRole);
     if (userData?.avatar) {
       setAvatarUrl(userData.avatar);
     }
+    if (userData?.userRole) {
+      setRole(userData.userRole);
+    }
   }, [location]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      checkRole(getAuthData().userId); 
+    }, 2 * 60 * 1000);
+    return () => clearInterval(interval); 
+  }, []);
+
+  const checkRole = (id : number) => {
+    try {
+      dispatch(getInfoUser(id))
+        .unwrap()
+        .then((serverUser) => {
+          const localUser = getAuthData(); 
+          if (serverUser?.role !== localUser?.userRole) {
+            handleLogout();
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to check role", error);
+        });
+      
+    } catch (error) {
+      console.error("Failed to check role", error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("authInfo");
@@ -59,7 +94,7 @@ export default function Header() {
               >
                 <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                   <div className="py-1">
-                    <Link to="/profile">
+                    <Link to="/me">
                       <MenuItem
                         as="button"
                         className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -67,6 +102,25 @@ export default function Header() {
                         Profile
                       </MenuItem>
                     </Link>
+                    {role === "landlord" ? (
+                      <Link to="/manage/dashboard">
+                        <MenuItem
+                          as="button"
+                          className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Dashboard
+                        </MenuItem>
+                      </Link>
+                    ) : role === "tenant" ? (
+                      <Link to="/request-role">
+                        <MenuItem
+                          as="button"
+                          className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Request Landlord
+                        </MenuItem>
+                      </Link>
+                    ) : null}
                     <Link to="/settings">
                       <MenuItem
                         as="button"

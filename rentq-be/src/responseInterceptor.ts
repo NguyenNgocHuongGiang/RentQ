@@ -10,11 +10,11 @@ import {
   @Injectable()
   export class ResponseInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-      const now = Date.now(); // Time the request was received
+      const now = Date.now(); 
   
       return next.handle().pipe(
         tap(() => {
-          const responseTime = Date.now() - now; // Calculate response time
+          const responseTime = Date.now() - now; 
           console.log(`Response time: ${responseTime}ms`);
         }),
         map(data => {
@@ -22,7 +22,6 @@ import {
           const request = context.switchToHttp().getRequest();
           const statusCode = response.statusCode;
   
-          // Determine the message based on the status code
           const message = statusCode >= 200 && statusCode < 300 ? 'Success' : 'Fail';
   
           return {
