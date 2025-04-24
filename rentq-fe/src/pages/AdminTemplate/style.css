@@ -8,5 +8,16 @@
 }
 
 .animate-marquee {
-  animation: marquee 12s linear infinite;
+  animation: marquee 20s linear infinite;
+}
+
+.ant-menu-item:hover {
+  background-color: #F4F0E665 !important;
+  color: #483507 !important;
+}
+
+.ant-menu-item.ant-menu-item-selected{
+  background-color: #483507 !important; 
+  color: white !important; 
+  border-radius: 0.5rem !important;
 }

@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import { Navigate } from 'react-router-dom';
 
 declare interface RouteConfig {
   path: string;
@@ -19,17 +20,25 @@ const routes: RouteConfig[] = [
         element: lazy(() => import("./../pages/UserTemplate/ProfilePage")),
         nested: [
           { path: "", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyProfile")) },
-          { path: "save-posts", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/Posts")) },
+          { path: "save-posts", element: lazy(() => import("../pages/UserTemplate/ProfilePage/SavePosts")) },
         ]
       },
       { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
+      { path: "message", element: lazy(() => import("./../pages/UserTemplate/MessagePage"))},
     ]
   },
   {
     path: "/manage",
     element: lazy(() => import("./../pages/AdminTemplate")),
     nested: [
-
+      {
+        path: "dashboard",
+        element: lazy(() => import("./../pages/AdminTemplate/Dashboard")),
+      },
+      {
+        path: "properties",
+        element: lazy(() => import("./../pages/AdminTemplate/Properties")),
+      },
     ],
   },
   {

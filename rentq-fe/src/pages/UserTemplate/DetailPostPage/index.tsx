@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../store";
 import { useEffect, useState } from "react";
 import {
-  getDetailListings,
-  getReviewListings,
+  getDetailPost,
+  getReviewProperties,
+  // getReviewListings,
 } from "../../../store/slice/postSlice";
 import { FaAngleRight, FaMapMarkerAlt, FaTag } from "react-icons/fa";
 import Loading from "../../../components/Loading";
@@ -12,8 +13,12 @@ import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { getInfoUser } from "../../../store/slice/userSlice";
 import UtilitiesList from "./component/Utilities";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import Review from "./component/Review";
+import { toast } from "react-toastify";
+import SimpleMap from "./component/Map";
+import { getAuthData } from "../../../utils/helpers";
+import { createMessage } from "../../../store/slice/messageSlice";
 
 const DetailPostPage = () => {
   const { alias } = useParams();
@@ -26,29 +31,47 @@ const DetailPostPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
-
-  console.log(alias);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (alias) {      
-      dispatch(getDetailListings(alias)).unwrap();
+    if (alias) {
+      dispatch(getDetailPost(alias)).unwrap();
     }
   }, [alias, dispatch]);
 
   useEffect(() => {
-    if (detailPost?.listing_id) {
-      dispatch(getReviewListings(detailPost?.listing_id)).unwrap();
-      dispatch(getInfoUser(detailPost?.landlord_id)).unwrap();
+    if (detailPost?.properties) {
+      dispatch(
+        getReviewProperties(detailPost?.properties?.property_id)
+      ).unwrap();
+      dispatch(getInfoUser(detailPost?.properties?.landlord_id)).unwrap();
     }
-  }, [detailPost?.listing_id, dispatch]);
+  }, [detailPost?.properties?.property_id, dispatch]);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [coords, setCoords] = useState({ lat: 0, lng: 0 });
+
+  const handleViewMap = async () => {
+    setIsModalVisible(true); // Mở modal ngay lập tức
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${detailPost?.properties?.address}`
+    );
+    const data = await res.json();
+    if (data.length > 0) {
+      setCoords({ lat: +data[0].lat, lng: +data[0].lon });
+    } else {
+      toast.error("Could not find the address.");
+      setIsModalVisible(false); // Đóng modal nếu không có địa chỉ
+    }
+  };
 
   // xu ly utilities
-  const utilitiesArray = detailPost?.utilities
+  const utilitiesArray = detailPost?.properties?.utilities
     .split(";")
     .map((item: string) => item.trim());
 
   // xy ly description
-  const newDes = detailPost?.description.trim();
+  const newDes = detailPost?.description?.trim();
   let shortDes = "";
   if (newDes) {
     shortDes = newDes.length > 300 ? newDes.slice(0, 300) + "..." : newDes;
@@ -64,15 +87,48 @@ const DetailPostPage = () => {
   };
 
   // xu ly image
-  const images = (detailPost?.listing_images || []).map((img: any) => ({
-    original: img.image_url || "/default-image.jpg",
-    thumbnail: img.image_url || "/default-image.jpg",
-  }));
+  const images = (detailPost?.properties?.property_images || []).map(
+    (img: any) => ({
+      original: img.image_url || "/default-image.jpg",
+      thumbnail: img.image_url || "/default-image.jpg",
+    })
+  );
   const mainImage =
     images.find(
-      (_: any, index: number) => detailPost.listing_images[index].is_main
+      (_: any, index: number) =>
+        detailPost?.properties?.property_images[index].is_main
     ) || images[0];
   const otherImages = images.filter((img: any) => img !== mainImage);
+
+  // message
+  const handleMessage = () => {
+    const isLoggedIn = !!localStorage.getItem("authInfo");
+    const hostInfo = {
+      id: inforHost?.user_id,
+      full_name: inforHost?.full_name,
+      avatar_url: inforHost?.avatar_url,
+    };
+
+    if (isLoggedIn) {
+      const newMessage = {
+        sender_id: getAuthData()?.userId,
+        receiver_id: inforHost?.user_id,
+        receiver_full_name: inforHost?.full_name,
+        receiver_avatar_url: inforHost?.avatar_url,
+        content: "Hello! I am interested in your property.",
+      };
+      dispatch(createMessage(newMessage))
+        .unwrap()
+        .then(() => {
+          navigate("/message", { state: hostInfo });
+        })
+        .catch((error) => {
+          toast.error("Failed to send message: " + error.message);
+        });
+    } else {
+      navigate("/login");
+    }
+  };
 
   if (loading) {
     return <Loading />;
@@ -161,18 +217,35 @@ const DetailPostPage = () => {
               <div className="mb-2">
                 <h1 className="text-2xl font-bold mb-2">{detailPost?.title}</h1>
                 <div className="flex">
-                  <div className="mr-2">Maximum: {detailPost?.max_people} people</div>
-                  <div className="">- Area: {detailPost?.area} m²</div>
+                  <div className="mr-2">
+                    Maximum: {detailPost?.properties?.max_people} people
+                  </div>
+                  <div className="">
+                    - Area: {detailPost?.properties?.area} m²
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center text-gray-600 mb-2">
                 <FaMapMarkerAlt className="mr-2 text-red-500 text-lg" />
-                <span>{detailPost?.address}</span>
-                <Button className="p-4 ml-3" onClick={() => {}}>
+                <span>{detailPost?.properties?.address}</span>
+                <Button className="p-4 ml-3" onClick={handleViewMap}>
                   View map
                 </Button>
               </div>
+
+              <Modal
+                open={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                footer={null}
+                width={600}
+              >
+                <SimpleMap
+                  lat={coords.lat}
+                  lng={coords.lng}
+                  address={detailPost?.properties?.address || ""}
+                />
+              </Modal>
 
               <p className="text-gray-800">
                 {showMore
@@ -235,7 +308,10 @@ const DetailPostPage = () => {
                     Response rate: 100% <br />
                     Response time: Within hours
                   </p>
-                  <button className="cursor-pointer mt-5 px-4 py-2 bg-[#483507] text-white rounded-lg hover:bg-[#483507] hover:cursor-pointer">
+                  <button
+                    className="cursor-pointer mt-5 px-4 py-2 bg-[#483507] text-white rounded-lg hover:bg-[#483507] hover:cursor-pointer"
+                    onClick={handleMessage}
+                  >
                     Message the host
                   </button>
                 </div>
@@ -264,7 +340,9 @@ const DetailPostPage = () => {
                 <div className="text-sm text-gray-600 mt-2">
                   <p>
                     <strong>Available From:</strong>{" "}
-                    {new Date(detailPost?.available_from).toLocaleDateString()}
+                    {new Date(
+                      detailPost?.properties?.available_from
+                    ).toLocaleDateString()}
                   </p>
                 </div>
                 <a

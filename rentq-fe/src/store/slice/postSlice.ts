@@ -3,24 +3,60 @@ import api from "../../utils/configApi";
 import {
   ActivePostType,
   DefaultState,
-  // ListingImageType,
-  // ListingsProperty,
-  // ReviewProperty,
+  PostsType,
+  ReviewProperty,
 } from "../../types/types";
 import { getAuthData } from "../../utils/helpers";
 
-// export const createNewPost = createAsyncThunk<ListingsProperty>(
-//   "posts/createNewPost",
-//   async (credentials, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post(`listings`, credentials);
-//       console.log(response.data.content);
-//       return response.data.content;
-//     } catch (error: any) {
-//       return rejectWithValue(error.response?.data || "Create failed!");
-//     }
-//   }
-// );
+export const createNewPost = createAsyncThunk<PostsType, PostsType>(
+  "posts/createNewPost",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`posts`, credentials);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Create failed!");
+    }
+  }
+);
+
+export const addSavePost = createAsyncThunk<
+  { user_id: number; post_id: number },
+  { user_id: number; post_id: number }
+>("posts/addSavePost", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await api.post(`save-post`, credentials);
+    return response.data.content;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || "Create failed!");
+  }
+});
+
+export const deleteSavePost = createAsyncThunk<
+  any,
+  { user_id: number; post_id: number }
+>("posts/deleteSavePost", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await api.delete(
+      `save-post/${credentials.user_id}/${credentials.post_id}`
+    );
+    return response.data.content;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || "Create failed!");
+  }
+});
+
+export const getSavePost = createAsyncThunk<any, number>(
+  "posts/getSavePost",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`save-post/${userId}`);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Create failed!");
+    }
+  }
+);
 
 // export const deletePosts = createAsyncThunk<ListingsProperty, number>(
 //   "posts/deletePosts",
@@ -35,28 +71,6 @@ import { getAuthData } from "../../utils/helpers";
 //   }
 // );
 
-export const uploadImages = createAsyncThunk<string[], FileList>(
-  "posts/uploadImages",
-  async (files, { rejectWithValue }) => {
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("files", file);
-      });
-
-      const response = await api.post(`file-upload/multiple-files`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log(response);
-      return response.data.content.imageUrls;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Upload failed!");
-    }
-  }
-);
-
 // export const createListingImage = createAsyncThunk<
 //   ListingImageType,
 //   ListingImageType
@@ -70,11 +84,11 @@ export const uploadImages = createAsyncThunk<string[], FileList>(
 //   }
 // });
 
-export const getDetailListings = createAsyncThunk<any, string>(
+export const getDetailPost = createAsyncThunk<PostsType, string>(
   "posts/getDetailListings",
   async (alias, { rejectWithValue }) => {
     try {
-      const response = await api.get(`listings/detail/${alias}`);
+      const response = await api.get(`posts/detail-post/${alias}`);
       console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
@@ -83,31 +97,57 @@ export const getDetailListings = createAsyncThunk<any, string>(
   }
 );
 
-// export const getReviewListings = createAsyncThunk<ReviewProperty[], number>(
-//   "posts/getReviewListings",
-//   async (listingId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get(`reviews/${listingId}`);
-//       console.log(response.data.content);
-//       return response.data.content;
-//     } catch (error: any) {
-//       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
-//     }
-//   }
-// );
+export const createNewReview = createAsyncThunk<ReviewProperty, ReviewProperty>(
+  "posts/createNewReview",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`reviews`, credentials);
+      console.log(response.data.content);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Create failed!");
+    }
+  }
+);
 
-// export const createNewReview = createAsyncThunk<ReviewProperty, ReviewProperty>(
-//   "posts/createNewReview",
-//   async (credentials, { rejectWithValue }) => {
-//     try {
-//       const response = await api.post(`reviews`, credentials);
-//       console.log(response.data.content);
-//       return response.data.content;
-//     } catch (error: any) {
-//       return rejectWithValue(error.response?.data || "Create failed!");
-//     }
-//   }
-// );
+export const updateReview = createAsyncThunk<ReviewProperty, ReviewProperty>(
+  "posts/updateReview",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const { review_id, ...updateData } = credentials;
+      const response = await api.patch(`reviews/${review_id}`, updateData);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Update failed!");
+    }
+  }
+);
+
+export const deleteReview = createAsyncThunk<ReviewProperty, number>(
+  "posts/deleteReview",
+  async (review_id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`reviews/${review_id}`);
+      console.log(response.data.content);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Xóa thất bại!");
+    }
+  }
+);
+
+export const getReviewProperties = createAsyncThunk<ReviewProperty[], number>(
+  "posts/getReviewProperties",
+  async (propertyId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`reviews/${propertyId}`);
+      console.log(response.data.content);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
+    }
+  }
+);
 
 export const getPopularListings = createAsyncThunk<ActivePostType[]>(
   "posts/getPopularListings",
@@ -122,11 +162,11 @@ export const getPopularListings = createAsyncThunk<ActivePostType[]>(
   }
 );
 
-export const getUserListings = createAsyncThunk<any, number>(
-  "posts/getUserListings",
+export const getUserPost = createAsyncThunk<any, number>(
+  "posts/getUserPost",
   async (user_id, { rejectWithValue }) => {
     try {
-      const response = await api.get(`listings/get-user-listings/${user_id}`);
+      const response = await api.get(`posts/get-user-posts/${user_id}`);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
@@ -136,10 +176,11 @@ export const getUserListings = createAsyncThunk<any, number>(
 
 const initialState: DefaultState = {
   loading: false,
-  data: null,
+  userPost: [] as PostsType[],
+  userSavePost: [],
   posts: [] as ActivePostType[],
-  reviewData: null,
-  detailPost: null,
+  reviewData: [] as ReviewProperty[],
+  detailPost: {} as PostsType,
   error: null,
 };
 
@@ -148,114 +189,165 @@ const postSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    //lay popular listings
-    builder.addCase(getPopularListings.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(getPopularListings.fulfilled, (state, action) => {
-      state.loading = false;
-      state.data = action.payload;
-    });
-    builder.addCase(getPopularListings.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
-
-    // lay thong tin listing cua nguoi dung
-    builder.addCase(getUserListings.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(getUserListings.fulfilled, (state, action) => {
-      state.loading = false;
-      state.posts = action.payload;
-    });
-    builder.addCase(getUserListings.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
-
-    //tao bai dang moi
-    // builder.addCase(createNewPost.pending, (state) => {
-    //   state.loading = true;
-    //   state.error = null;
-    // });
-    // builder.addCase(createNewPost.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   state.posts = [...(state.posts || []), action.payload];
-    // });
-    // builder.addCase(createNewPost.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload as string;
-    // });
-
-    //lay thong tin chi tiet listings
-    builder.addCase(getDetailListings.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(getDetailListings.fulfilled, (state, action) => {
-      state.loading = false;
-      state.detailPost = action.payload;
-    });
-    builder.addCase(getDetailListings.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
-
-    // //lay review listings
-    // builder.addCase(getReviewListings.pending, (state) => {
-    //   state.loading = true;
-    //   state.error = null;
-    // });
-    // builder.addCase(getReviewListings.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   state.reviewData = action.payload;
-    // });
-    // builder.addCase(getReviewListings.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload as string;
-    // });
-
-    // // tao moi review
-    // builder.addCase(createNewReview.pending, (state) => {
-    //   state.loading = true;
-    //   state.error = null;
-    // });
-    // builder.addCase(createNewReview.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   const userInfo = getAuthData();
-    //   const newReview = {
-    //     ...action.payload,
-    //     users: {
-    //       full_name: userInfo?.userName,
-    //       avatar_url: userInfo?.avatar,
-    //     },
-    //   };
-    //   state.reviewData = [...(state.reviewData || []), newReview];
-    // });
-    // builder.addCase(createNewReview.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload as string;
-    // });
-
-    //xoa bai dang
-    // builder.addCase(deletePosts.pending, (state) => {
-    //   state.loading = true;
-    //   state.error = null;
-    // });
-    // builder.addCase(deletePosts.fulfilled, (state, action) => {
-    //   state.loading = false;
-    //   const deletedId = action.payload.listing_id;
-    //   state.listings = (state.listings ?? []).filter(
-    //     (item: ListingsProperty) => item.listing_id !== deletedId
-    //   );
-    // });
-    // builder.addCase(deletePosts.rejected, (state, action) => {
-    //   state.loading = false;
-    //   state.error = action.payload as string;
-    // });
+    builder
+      .addCase(createNewPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createNewPost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userPost = [...(state.userPost || []), action.payload];
+      })
+      .addCase(createNewPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(getUserPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserPost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userPost = action.payload;
+      })
+      .addCase(getUserPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(getDetailPost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getDetailPost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.detailPost = action.payload;
+      })
+      .addCase(getDetailPost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(getReviewProperties.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getReviewProperties.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reviewData = action.payload;
+      })
+      .addCase(getReviewProperties.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(createNewReview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createNewReview.fulfilled, (state, action) => {
+        state.loading = false;
+        const newReview = {
+          ...action.payload,
+          users: {
+            user_id: getAuthData()?.userId,
+            full_name: getAuthData()?.userName,
+            avatar_url: getAuthData()?.avatar,
+          },
+        };
+        state.reviewData = [newReview, ...state.reviewData];
+      })
+      .addCase(createNewReview.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(updateReview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateReview.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reviewData = state.reviewData.map((item: ReviewProperty) =>
+          item.review_id === action.payload.review_id
+            ? { ...item, ...action.payload }
+            : item
+        );
+      })
+      .addCase(updateReview.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(deleteReview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteReview.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reviewData = state.reviewData.filter(
+          (item: ReviewProperty) => item.review_id !== action.payload.review_id
+        );
+      })
+      .addCase(deleteReview.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(getPopularListings.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPopularListings.fulfilled, (state, action) => {
+        state.loading = false;
+        state.posts = action.payload;
+      })
+      .addCase(getPopularListings.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(getSavePost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getSavePost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userSavePost = action.payload;
+      })
+      .addCase(getSavePost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(addSavePost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addSavePost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userSavePost = [...state.userSavePost, action.payload];
+      })
+      .addCase(addSavePost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(deleteSavePost.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteSavePost.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userSavePost = state.userSavePost.filter(
+          (item: any) => item.post_id !== action.payload.post_id
+        );
+      })
+      .addCase(deleteSavePost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

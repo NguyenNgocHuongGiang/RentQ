@@ -64,7 +64,7 @@ export const getUserRole = createAsyncThunk<any, number>(
 const initialState: DefaultState = {
   loading: false,
   data: null,
-  listings: [],
+  // listings: [],
   error: null,
 };
 

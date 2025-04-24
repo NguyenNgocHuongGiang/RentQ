@@ -1,10 +1,15 @@
 export type DefaultState = {
   loading: boolean;
-  data: any;
+  userPost?: any;
+  data?: any;
   reviewData? : any;
   detailPost? : any;
   posts? : ActivePostType[];
   error: string | null;
+  listProperties?: any;
+  userSavePost?: any;
+  listMessages?: MessageType[];
+  listReceivers?: User[];
 };
 
 export type User = {
@@ -32,19 +37,38 @@ export interface RoleRequest {
   status: "pending" | "approved" | "rejected";
 }
 
+export type PropertyType = {
+  property_id?: number;
+  landlord_id: number;
+  address: string;
+  area: number;
+  utilities: string;
+  max_people: number;
+  furniture: 'full' | 'basic' | 'none';
+  available_from: string;
+  property_type: 'apartment' | 'house' | 'office' | 'storefront';
+  property_images?: PropertyImageType[] 
+  description: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export type PostsType = {
   post_id?: number;
-  title: string;
-  description: string;
-  price: number;
   property_id: number;
-  status: boolean;
+  title: string;
+  alias: string;
+  price: number;
+  description: string;
+  status: string;
   is_approved: boolean;
+  properties? : PropertyType
   created_at?: string;
   updated_at?: string;
 }
 
 export type ActivePostType = {
+  post_id: number;
   price: number;
   alias: string;
   properties: {
@@ -56,18 +80,29 @@ export type ActivePostType = {
 };
 
 
-// export type ListingImageType = {
-//   listing_id?: number;
-//   images_url: string[];
-//   isMain: boolean[];
-// }
+export type PropertyImageType = {
+  property_id?: number;
+  images_url: string[];
+  is_main: boolean[];
+}
 
-// export type ReviewProperty = {
-//   review_id?: number;
-//   listing_id: number;
-//   tenant_id: number;
-//   rating: number;
-//   comment:string;
-//   users? : {}
-//   created_at?: string;
-// };
+export type MessageType = {
+  message_id?: number;
+  sender_id: number;
+  receiver_id: number;
+  receiver_full_name?: string;
+  receiver_avatar_url?: string;
+  last_message?: MessageType;
+  content: string;
+  send_at?: string;
+}
+
+export type ReviewProperty = {
+  review_id?: number;
+  property_id: number;
+  tenant_id: number;
+  rating: number;
+  comment:string;
+  users? : {}
+  created_at?: string;
+};

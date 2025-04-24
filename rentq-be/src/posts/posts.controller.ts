@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { AutoApiResponse } from 'src/auto-api-response.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -17,15 +18,21 @@ export class PostsController {
     return this.postsService.findActivePosts();
   }
 
+  @Get('/detail-post/:alias')
+  @AutoApiResponse('GET')
+  findDetailPosts(@Param('alias') alias: string) {
+    return this.postsService.findDetailPosts(alias);
+  }
+
   // @Get()
   // findAll() {
   //   return this.postsService.findAll();
   // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.postsService.findOne(+id);
-  // }
+  @Get('/get-user-posts/:userId')
+  findOne(@Param('userId') id: string) {
+    return this.postsService.findOne(+id);
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {

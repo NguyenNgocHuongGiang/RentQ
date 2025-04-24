@@ -1,48 +1,95 @@
 import { useNavigate } from "react-router-dom";
 import { ActivePostType } from "../../types/types";
-import { Bookmark } from "lucide-react";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaMapMarkerAlt, FaRegHeart, FaHeart } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { getAuthData } from "../../utils/helpers";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { addSavePost, deleteSavePost } from "../../store/slice/postSlice";
 
 interface PostCardProps {
-  listing: ActivePostType;
+  post: ActivePostType;
+  savedPosts: number[];
 }
 
-const PostCard: React.FC<PostCardProps> = ({ listing }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, savedPosts }) => {
   const navigate = useNavigate();
-  // const mainImage =
-  //   listing.listing_images?.find((img) => img.is_main) ||
-  //   listing.listing_images?.[0];
+  const dispatch = useDispatch<AppDispatch>();
 
-  // console.log(listing);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+  console.log(savedPosts, "postcard");
+
+  useEffect(() => {
+    if (savedPosts?.includes(post?.post_id)) {
+      setIsFavorite(true);
+    } else {
+      setIsFavorite(false);
+    }
+  }, [savedPosts, post?.post_id]);
+
+  const mainImage =
+    post?.properties?.property_images?.find((img) => img.is_main) ||
+    post?.properties?.property_images?.[0];
+
+  const handleFavoriteClick = (e: React.MouseEvent, post_id: number) => {
+    e.stopPropagation();
+    const newSavePost = {
+      user_id: getAuthData()?.userId,
+      post_id,
+    };
+    if (!isFavorite) {
+      dispatch(addSavePost(newSavePost)).unwrap();
+    } else {
+      dispatch(deleteSavePost(newSavePost)).unwrap();
+    }
+    setIsFavorite((prev) => !prev);
+  };
 
   return (
     <div
-      onClick={() => navigate(`/detailpost/${listing.alias}`)}
-      className="hover:scale-108 transition-transform duration-200 bg-white shadow-lg rounded-lg overflow-hidden p-4 hover:cursor-pointer"
+      onClick={() => navigate(`/detailpost/${post.alias}`)}
+      className="hover:scale-105 transition-transform duration-200 bg-white shadow-lg rounded-lg overflow-hidden p-4 hover:cursor-pointer"
     >
-      {/* {mainImage ? (
-        <img
-          src={mainImage.image_url}
-          alt={listing.title}
-          className="w-full h-30 lg:h-40 object-cover rounded-md mb-4"
-        />
-      ) : (
-        <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600">
-          No Image
+      <div className="relative">
+        {mainImage ? (
+          <img
+            src={mainImage.image_url}
+            alt={post.alias}
+            className="w-full h-30 lg:h-40 object-cover rounded-md mb-4"
+          />
+        ) : (
+          <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600 rounded-md mb-4">
+            No Image
+          </div>
+        )}
+
+        <div
+          onClick={(e) => handleFavoriteClick(e, post.post_id)}
+          className="absolute top-2 right-2 bg-white rounded-full p-2 shadow cursor-pointer"
+        >
+          {isFavorite ? (
+            <FaHeart size={20} className="text-red-500" />
+          ) : (
+            <FaRegHeart size={20} className="text-red-500" />
+          )}
         </div>
-      )} */}
-       <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600">
-          No Image
-        </div>
+      </div>
+
       <div className="text-md text-left font-semibold mb-2 flex items-center">
         <FaMapMarkerAlt className="mr-2 text-red-500 text-md" />
-        <p>{listing?.properties.address}</p>
+        <p className="flex-3/5">
+          {post?.properties?.address.length > 50
+            ? post?.properties?.address.slice(0, 30) + "..."
+            : post?.properties?.address}
+        </p>
       </div>
+
       <div className="flex justify-between">
         <div>
           <div className="text-gray-600 text-left text-md">
             <span className="text-xl text-green-600 font-bold">
-              {listing.price}
+              {post?.price}
             </span>
             <span> VND/month</span>
           </div>
@@ -54,7 +101,6 @@ const PostCard: React.FC<PostCardProps> = ({ listing }) => {
             <span>⭐</span>
           </div>
         </div>
-        <Bookmark size={24} />
       </div>
     </div>
   );

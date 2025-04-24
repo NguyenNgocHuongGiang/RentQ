@@ -31,12 +31,10 @@ export class ReviewsService {
       where: {
         property_id: id,
       },
-      select: {
-        comment: true,
-        rating: true,
-        created_at: true,
+      include: {
         users: {
           select: {
+            user_id: true,
             full_name: true,
             avatar_url: true,
           },
@@ -45,9 +43,14 @@ export class ReviewsService {
     });
   }
 
-  // update(id: number, updateReviewDto: UpdateReviewDto) {
-  //   return `This action updates a #${id} review`;
-  // }
+  update(id: number, updateReviewDto: UpdateReviewDto) {
+    return this.prisma.reviews.update({
+      where: {
+        review_id: id,
+      },
+      data: updateReviewDto,
+    });
+  }
 
   async remove(id: number) {
     return this.prisma.reviews.delete({

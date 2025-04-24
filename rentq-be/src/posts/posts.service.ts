@@ -30,6 +30,7 @@ export class PostsService {
         is_approved: true,
       },
       select:{
+        post_id: true,
         price: true,
         alias: true,
         properties: {
@@ -44,12 +45,33 @@ export class PostsService {
     });
   }
 
+  async findDetailPosts(alias : string) {
+    return this.prisma.posts.findFirst({
+      where: {
+        alias: alias
+      },
+      include: {
+        properties: {
+          include: {
+            property_images : true
+          }
+        }
+      }
+    })
+  }
+
   findAll() {
     return `This action returns all posts`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} post`;
+    return this.prisma.posts.findMany({
+      where: { 
+        properties:{
+          landlord_id: id,
+        }
+      },
+    });
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {

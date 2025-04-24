@@ -9,9 +9,13 @@ import { RoleModule } from './role/role.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { PropertiesModule } from './properties/properties.module';
 import { PostsModule } from './posts/posts.module';
+import { PropertyImagesModule } from './property-images/property-images.module';
+import { SavePostModule } from './save-post/save-post.module';
+import { MessageModule } from './message/message.module';
+
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}),UserModule, AuthModule, FileUploadModule, RoleModule, ReviewsModule, PropertiesModule, PostsModule],
+  imports: [ConfigModule.forRoot({isGlobal: true}),UserModule, AuthModule, FileUploadModule, RoleModule, ReviewsModule, PropertiesModule, PostsModule, PropertyImagesModule, SavePostModule, MessageModule],
   controllers: [AppController],
   providers: [AppService],
 })

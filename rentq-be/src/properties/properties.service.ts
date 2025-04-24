@@ -38,6 +38,9 @@ export class PropertiesService {
   async getUserProperties(id: number) {
     return await this.prisma.properties.findMany({
       where: { landlord_id: id },
+      include:{
+        property_images: true,
+      }
     });
   }
 

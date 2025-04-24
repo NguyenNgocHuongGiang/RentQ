@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -35,10 +36,11 @@ export class ReviewsController {
     return this.reviewsService.findPropertyReview(+id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-  //   return this.reviewsService.update(+id, updateReviewDto);
-  // }
+  @Patch(':id')
+  @AutoApiResponse('PATCH')
+  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
+    return this.reviewsService.update(+id, updateReviewDto);
+  }
 
   @Delete(':id')
   @AutoApiResponse('DELETE')

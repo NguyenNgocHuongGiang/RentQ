@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async findAll(): Promise<users[]> {
-    return this.prisma.users.findMany();
+    return await this.prisma.users.findMany();
   }
 
   async findOne(id: number): Promise<users> {

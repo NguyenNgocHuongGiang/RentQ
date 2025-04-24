@@ -7,11 +7,11 @@ import { createRoleRequest, getUserRole } from "../../../store/slice/userSlice";
 import { RoleRequest } from "../../../types/types";
 import { toast } from "react-toastify";
 import PolicyModal from "../../../components/Modal/PolicyModal";
-import { getUserListings } from "../../../store/slice/postSlice";
+// import { getUserListings } from "../../../store/slice/postSlice";
 
 export default function RequestRole() {
   const { data } = useSelector((state: any) => state.userReducer);
-  const { listings } = useSelector((state: any) => state.postReducer);
+  // const { listings } = useSelector((state: any) => state.postReducer);
   const dispatch = useDispatch<AppDispatch>();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +44,7 @@ export default function RequestRole() {
 
   const fetchData = () => {
     dispatch(getUserRole(user.userId)).unwrap();
-    dispatch(getUserListings(user.userId)).unwrap();
+    // dispatch(getUserListings(user.userId)).unwrap();
   };
 
   return (

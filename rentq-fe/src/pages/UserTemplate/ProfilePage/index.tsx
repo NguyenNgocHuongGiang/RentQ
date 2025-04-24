@@ -6,7 +6,7 @@ export default function Profile() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 flex">
+    <div className="max-w-7xl mx-auto p-6 flex">
       {/* Sidebar */}
       <div className="w-1/4 py-2">
         <ul className="space-y-2">

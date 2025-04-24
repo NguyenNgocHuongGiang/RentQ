@@ -44,7 +44,6 @@ export class FileUploadService {
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
     try {
-      // Resize chỉ khi file lớn
       console.time('sharp');
       const buffer =
         file.buffer.length > 2 * 1024 * 1024
@@ -55,8 +54,6 @@ export class FileUploadService {
           : file.buffer;
       console.timeEnd('sharp');
 
-      // Upload lên Cloudinary
-      console.time('cloudinary');
       return new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(

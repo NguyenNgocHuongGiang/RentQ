@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import App from "./App";
-// import { store } from './store';
+import "leaflet/dist/leaflet.css";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom"; // BrowserRouter should be here
 import { store } from "./store";
