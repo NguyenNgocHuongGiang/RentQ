@@ -81,8 +81,6 @@ const Review = () => {
       comment,
     };
 
-    console.log(reviewIdBeingEdited, "reviewIdBeingEdited");
-
     if (reviewIdBeingEdited) {
       // Edit
       await dispatch(

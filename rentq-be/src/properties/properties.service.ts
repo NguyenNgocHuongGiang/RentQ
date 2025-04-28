@@ -59,6 +59,22 @@ export class PropertiesService {
     });
   }
 
+  async getPropertyLocation() {
+    const properties = await this.prisma.properties.findMany({
+      select: {
+        address: true,
+      },
+    });
+
+    const addresses = properties.map(property => {
+      const addressParts = property.address.split(',');
+      return addressParts.slice(1).join(',').trim(); 
+    });
+  
+    return addresses;
+  }
+  
+
   async remove(id: number) {
     const property = await this.prisma.properties.findUnique({
       where: { property_id: id },

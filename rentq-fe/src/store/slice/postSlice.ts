@@ -5,6 +5,7 @@ import {
   DefaultState,
   PostsType,
   ReviewProperty,
+  SearchPost,
 } from "../../types/types";
 import { getAuthData } from "../../utils/helpers";
 
@@ -71,25 +72,38 @@ export const getSavePost = createAsyncThunk<any, number>(
 //   }
 // );
 
-// export const createListingImage = createAsyncThunk<
-//   ListingImageType,
-//   ListingImageType
-// >("posts/createListingImage", async (credentials, { rejectWithValue }) => {
-//   try {
-//     const response = await api.post(`listing-images`, credentials);
-//     console.log(response);
-//     return response.data.content;
-//   } catch (error: any) {
-//     return rejectWithValue(error.response?.data || "Create failed!");
-//   }
-// });
+export const getPostByLocation = createAsyncThunk<
+  SearchPost,
+  { location: string; available: string; page: number; size: number }
+>("posts/getPostByLocation", async (credentials, { rejectWithValue }) => {
+  const { location, available, page, size } = credentials;
+
+  try {
+    // Tạo query string cho location và available
+    const locationQuery = location ? `/${location}` : "/noLocation";
+    const availableQuery = available ? `/${available}` : "/noDate";
+
+    // Thêm phân trang vào URL
+    const pageQuery = `page=${page}`;
+    const sizeQuery = `size=${size}`;
+
+    // Truyền các tham số phân trang vào URL
+    const response = await api.get(
+      `posts${locationQuery}${availableQuery}?${pageQuery}&${sizeQuery}`
+    );
+
+    // Trả về các bài post
+    return response.data.content;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || "Failed to fetch posts!");
+  }
+});
 
 export const getDetailPost = createAsyncThunk<PostsType, string>(
   "posts/getDetailListings",
   async (alias, { rejectWithValue }) => {
     try {
       const response = await api.get(`posts/detail-post/${alias}`);
-      console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
@@ -102,7 +116,6 @@ export const createNewReview = createAsyncThunk<ReviewProperty, ReviewProperty>(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.post(`reviews`, credentials);
-      console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Create failed!");
@@ -128,7 +141,6 @@ export const deleteReview = createAsyncThunk<ReviewProperty, number>(
   async (review_id, { rejectWithValue }) => {
     try {
       const response = await api.delete(`reviews/${review_id}`);
-      console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Xóa thất bại!");
@@ -141,7 +153,6 @@ export const getReviewProperties = createAsyncThunk<ReviewProperty[], number>(
   async (propertyId, { rejectWithValue }) => {
     try {
       const response = await api.get(`reviews/${propertyId}`);
-      console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
@@ -154,7 +165,6 @@ export const getPopularListings = createAsyncThunk<ActivePostType[]>(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get("posts/active");
-      console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
@@ -181,6 +191,7 @@ const initialState: DefaultState = {
   posts: [] as ActivePostType[],
   reviewData: [] as ReviewProperty[],
   detailPost: {} as PostsType,
+  searchPost: {} as SearchPost,
   error: null,
 };
 
@@ -345,6 +356,24 @@ const postSlice = createSlice({
         );
       })
       .addCase(deleteSavePost.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(getPostByLocation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPostByLocation.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log(action.payload);
+        
+        state.searchPost = action.payload;
+
+        console.log(state.searchPost);
+
+      })
+      .addCase(getPostByLocation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

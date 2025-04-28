@@ -1,5 +1,4 @@
-import { lazy } from 'react';
-import { Navigate } from 'react-router-dom';
+import { lazy } from 'react'
 
 declare interface RouteConfig {
   path: string;
@@ -25,6 +24,7 @@ const routes: RouteConfig[] = [
       },
       { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
       { path: "message", element: lazy(() => import("./../pages/UserTemplate/MessagePage"))},
+      { path: "search", element: lazy(() => import("./../pages/UserTemplate/SearchPage"))},
     ]
   },
   {

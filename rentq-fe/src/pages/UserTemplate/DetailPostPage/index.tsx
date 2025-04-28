@@ -13,12 +13,12 @@ import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { getInfoUser } from "../../../store/slice/userSlice";
 import UtilitiesList from "./component/Utilities";
-import { Button, Modal } from "antd";
+import { Button } from "antd";
 import Review from "./component/Review";
 import { toast } from "react-toastify";
-import SimpleMap from "./component/Map";
 import { getAuthData } from "../../../utils/helpers";
 import { createMessage } from "../../../store/slice/messageSlice";
+import { Dialog } from "@headlessui/react";
 
 const DetailPostPage = () => {
   const { alias } = useParams();
@@ -31,6 +31,7 @@ const DetailPostPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,21 +49,12 @@ const DetailPostPage = () => {
     }
   }, [detailPost?.properties?.property_id, dispatch]);
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [coords, setCoords] = useState({ lat: 0, lng: 0 });
-
-  const handleViewMap = async () => {
-    setIsModalVisible(true); // Mở modal ngay lập tức
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${detailPost?.properties?.address}`
-    );
-    const data = await res.json();
-    if (data.length > 0) {
-      setCoords({ lat: +data[0].lat, lng: +data[0].lon });
-    } else {
-      toast.error("Could not find the address.");
-      setIsModalVisible(false); // Đóng modal nếu không có địa chỉ
-    }
+  // xu ly Map
+  const handleViewMap = () => {
+    setIsOpen(true);
+  };
+  const closeModal = () => {
+    setIsOpen(false);
   };
 
   // xu ly utilities
@@ -100,7 +92,7 @@ const DetailPostPage = () => {
     ) || images[0];
   const otherImages = images.filter((img: any) => img !== mainImage);
 
-  // message
+  // xu ly message
   const handleMessage = () => {
     const isLoggedIn = !!localStorage.getItem("authInfo");
     const hostInfo = {
@@ -126,7 +118,7 @@ const DetailPostPage = () => {
           toast.error("Failed to send message: " + error.message);
         });
     } else {
-      navigate("/login");
+      navigate("/auth/login");
     }
   };
 
@@ -136,7 +128,7 @@ const DetailPostPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 ">
-      <div className="overflow-hidden">
+      <div className="min-h-fit">
         <div className="mt-4">
           {images.length === 1 && (
             <img
@@ -234,18 +226,30 @@ const DetailPostPage = () => {
                 </Button>
               </div>
 
-              <Modal
-                open={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
-                footer={null}
-                width={600}
+              <Dialog
+                open={isOpen}
+                onClose={closeModal}
+                className="relative z-50"
               >
-                <SimpleMap
-                  lat={coords.lat}
-                  lng={coords.lng}
-                  address={detailPost?.properties?.address || ""}
-                />
-              </Modal>
+                {/* Background overlay */}
+                <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+                {/* Modal content */}
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                  <Dialog.Panel className="w-full max-w-4xl rounded bg-white p-4 shadow-xl">
+                    <div className="relative w-full h-[500px]">
+                      <iframe
+                        className="absolute top-0 left-0 w-full h-full rounded"
+                        loading="lazy"
+                        allowFullScreen
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(
+                          detailPost?.properties?.address
+                        )}&output=embed`}
+                      ></iframe>
+                    </div>
+                  </Dialog.Panel>
+                </div>
+              </Dialog>
 
               <p className="text-gray-800">
                 {showMore
@@ -319,7 +323,7 @@ const DetailPostPage = () => {
             </div>
           </div>
 
-          <div className="hidden lg:flex flex-col col-span-1 rounded-lg p-4 lg:sticky lg:top-4">
+          <div className="hidden lg:flex flex-col col-span-1 rounded-lg p-4 sticky top-20 h-fit">
             <div className="flex items-center bg-white shadow-[0px_4px_6px_rgba(0,0,0,0.1)] border border-gray-100 rounded-lg p-3">
               <FaTag className="text-[#c2bdb5] mr-3" />
               <span className="text-gray-800 font-medium">

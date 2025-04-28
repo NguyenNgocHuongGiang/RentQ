@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -9,11 +18,13 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
+  @AutoApiResponse('POST')
   create(@Body() createPostDto: CreatePostDto) {
     return this.postsService.create(createPostDto);
   }
 
   @Get('active')
+  @AutoApiResponse('GET')
   findActivePosts() {
     return this.postsService.findActivePosts();
   }
@@ -30,8 +41,20 @@ export class PostsController {
   // }
 
   @Get('/get-user-posts/:userId')
+  @AutoApiResponse('GET')
   findOne(@Param('userId') id: string) {
     return this.postsService.findOne(+id);
+  }
+
+  @Get(':location/:available')
+  @AutoApiResponse('GET')
+  async findPosts(
+    @Param('location') location: string = '',  
+    @Param('available') available: string = '',  
+    @Query('page') page: number = 1,         
+    @Query('size') size: number = 5           
+  ) {
+    return this.postsService.findPostByLocation(location, available, +page, +size);
   }
 
   // @Patch(':id')
@@ -40,6 +63,7 @@ export class PostsController {
   // }
 
   @Delete(':id')
+  @AutoApiResponse('DELETE')
   remove(@Param('id') id: string) {
     return this.postsService.remove(+id);
   }

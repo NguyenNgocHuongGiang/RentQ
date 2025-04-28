@@ -29,54 +29,105 @@ export class PostsService {
         status: 'active',
         is_approved: true,
       },
-      select:{
+      select: {
         post_id: true,
         price: true,
         alias: true,
         properties: {
           select: {
+            max_people: true,
             address: true,
             area: true,
-            reviews: true,
             property_images: true,
           },
         },
-      }
+      },
     });
   }
 
-  async findDetailPosts(alias : string) {
+  async findDetailPosts(alias: string) {
     return this.prisma.posts.findFirst({
       where: {
-        alias: alias
+        alias: alias,
       },
       include: {
         properties: {
           include: {
-            property_images : true
-          }
-        }
-      }
-    })
-  }
-
-  findAll() {
-    return `This action returns all posts`;
-  }
-
-  findOne(id: number) {
-    return this.prisma.posts.findMany({
-      where: { 
-        properties:{
-          landlord_id: id,
-        }
+            property_images: true,
+          },
+        },
       },
     });
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async findPostByLocation(location: string, available: string, page: number, size: number) {
+    let availableDay: Date | null = null;
+    let endDate: Date | null = null;
+  
+    if (available && available !== 'noDate') {
+      availableDay = new Date(available);
+      endDate = new Date(availableDay);
+      endDate.setDate(availableDay.getDate() + 2);
+    }
+  
+    const whereConditions: any = {
+      properties: {},
+    };
+  
+    if (location && location !== 'noLocation') {
+      whereConditions.properties.address = {
+        contains: location,
+      };
+    }
+  
+    if (availableDay && endDate) {
+      whereConditions.properties.available_from = {
+        lte: endDate,
+      };
+    }
+  
+    const posts = await this.prisma.posts.findMany({
+      where: whereConditions,
+      include: {
+        properties: {
+          include: {
+            property_images: true,
+          },
+        },
+      },
+      skip: (page - 1) * size,  
+      take: size,             
+    });
+  
+    const total = await this.prisma.posts.count({
+      where: whereConditions,
+    });
+  
+    return {
+      posts,
+      total,
+    };
   }
+  
+  
+
+  // async findAll() {
+  //   return `This action returns all posts`;
+  // }
+
+  async findOne(id: number) {
+    return this.prisma.posts.findMany({
+      where: {
+        properties: {
+          landlord_id: id,
+        },
+      },
+    });
+  }
+
+  // async update(id: number, updatePostDto: UpdatePostDto) {
+  //   return `This action updates a #${id} post`;
+  // }
 
   async remove(id: number) {
     const post = await this.prisma.posts.findUnique({

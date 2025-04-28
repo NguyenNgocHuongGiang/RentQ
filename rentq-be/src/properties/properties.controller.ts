@@ -22,6 +22,12 @@ export class PropertiesController {
     return this.propertiesService.findAll();
   }
 
+  @Get('location')
+  @AutoApiResponse('GET')
+  getPropertyLocation(){
+    return this.propertiesService.getPropertyLocation();
+  }
+
   @Get(':userId')
   @AutoApiResponse('GET')
   getUserProperties(@Param('userId') id: string) {

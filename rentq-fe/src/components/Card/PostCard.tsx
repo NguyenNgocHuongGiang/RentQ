@@ -18,8 +18,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, savedPosts }) => {
 
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
-  console.log(savedPosts, "postcard");
-
   useEffect(() => {
     if (savedPosts?.includes(post?.post_id)) {
       setIsFavorite(true);
@@ -87,18 +85,26 @@ const PostCard: React.FC<PostCardProps> = ({ post, savedPosts }) => {
 
       <div className="flex justify-between">
         <div>
+          <div className="flex flex-row space-x-2 text-gray-500 text-sm mb-2">
+            <div>
+              <span className="text-gray-500 text-sm">Area: </span>
+              <span className="text-md font-semibold">
+                {post?.properties?.area} m²
+              </span>
+            </div>
+            <div>|</div>
+            <div>
+              <span className="text-gray-500 text-sm">Max people: </span>
+              <span className="text-md font-semibold">
+                {post?.properties?.max_people}
+              </span>
+            </div>
+          </div>
           <div className="text-gray-600 text-left text-md">
             <span className="text-xl text-green-600 font-bold">
               {post?.price}
             </span>
             <span> VND/month</span>
-          </div>
-          <div className="flex mt-2 space-x-1 text-yellow-500">
-            <span>⭐</span>
-            <span>⭐</span>
-            <span>⭐</span>
-            <span>⭐</span>
-            <span>⭐</span>
           </div>
         </div>
       </div>

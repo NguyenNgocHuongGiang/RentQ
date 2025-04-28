@@ -21,7 +21,6 @@ export const loginUser = createAsyncThunk<any, LoginCredentials>(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.post("auth/login", credentials);
-      console.log(response);
       localStorage.setItem("authInfo", JSON.stringify(response.data.content));      
       return response.data.content;
     } catch (error: any) {   

@@ -7,8 +7,6 @@ export const getInfoUser = createAsyncThunk<any, number>(
   async (user_id, { rejectWithValue }) => {
     try {
       const response = await api.get(`users/${user_id}`);
-      console.log(response.data.content);
-
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
@@ -22,8 +20,6 @@ export const updateInfoUser = createAsyncThunk<
 >("user/updateInfo", async ({ user_id, userData }, { rejectWithValue }) => {
   try {
     const response = await api.put(`users/${user_id}`, userData);
-    console.log(response.data.content);
-
     return response.data.content;
   } catch (error: any) {
     return rejectWithValue(
@@ -37,8 +33,6 @@ export const createRoleRequest = createAsyncThunk<RoleRequest, RoleRequestType>(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.post(`role`, credentials);
-      console.log(response.data.content);
-
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Send requets failed!");
@@ -51,7 +45,6 @@ export const getUserRole = createAsyncThunk<any, number>(
   async (user_id, { rejectWithValue }) => {
     try {
       const response = await api.get(`role/${user_id}`);
-      console.log(response.data.content);
       return response.data.content;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
