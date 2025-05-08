@@ -23,6 +23,7 @@ import {
   FileTextOutlined,
   DollarOutlined,
   SettingOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { Outlet, useNavigate } from "react-router-dom";
 
@@ -56,6 +57,11 @@ const menuItems = [
     key: "/manage/settings",
     icon: <SettingOutlined />,
     label: "Settings",
+  },
+  {
+    key: "/",
+    icon: <ArrowLeftOutlined />,
+    label: "Back to User Site",
   },
 ];
 

@@ -29,6 +29,10 @@ export class PostsService {
         status: 'active',
         is_approved: true,
       },
+      orderBy: {
+        created_at: 'desc',
+      },
+      take: 8,
       select: {
         post_id: true,
         price: true,
@@ -44,6 +48,7 @@ export class PostsService {
       },
     });
   }
+  
 
   async findDetailPosts(alias: string) {
     return this.prisma.posts.findFirst({
@@ -109,8 +114,6 @@ export class PostsService {
     };
   }
   
-  
-
   // async findAll() {
   //   return `This action returns all posts`;
   // }

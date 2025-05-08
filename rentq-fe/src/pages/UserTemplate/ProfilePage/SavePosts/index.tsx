@@ -15,8 +15,8 @@ const Posts = () => {
   },[])
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-4">
-      <div className="flex flex-col gap-4 p-4">
+    <div className="max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-6 gap-4">
         {userSavePost?.length > 0 ? (
           userSavePost.map((post: any) => (
             <PostCard
@@ -28,7 +28,7 @@ const Posts = () => {
         ) : (
           <p>No saved posts found.</p>
         )}
-      </div>
+    </div>
     </div>
   )
 }

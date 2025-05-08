@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { PropertyImagesService } from './property-images.service';
 import { CreatePropertyImageDto, CreatePropertyImageListDto } from './dto/create-property-image.dto';
 import { UpdatePropertyImageDto } from './dto/update-property-image.dto';
+import { AutoApiResponse } from 'src/auto-api-response.decorator';
 
 @Controller('property-images')
 export class PropertyImagesController {
@@ -27,23 +28,26 @@ export class PropertyImagesController {
     return this.propertyImagesService.findAll();
   }
 
-  // @Get('get-by-listingId/:listingId')
-  // findByListingId(@Param('listingId') id: string) {
-  //   return this.propertyImagesService.findByListingId(+id);
-  // }
+  @Get('get-by-propertyId/:propertyId')
+  findByListingId(@Param('propertyId') id: string) {
+    return this.propertyImagesService.findByPropertyId(+id);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.propertyImagesService.findOne(+id);
   // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateListingImageDto: UpdatePropertyImageDto) {
-    return this.propertyImagesService.update(+id, updateListingImageDto);
+  @Put()
+  @AutoApiResponse('PUT')
+  update(@Body() body: { url: string, status: boolean }) {
+    return this.propertyImagesService.update(body.url, body.status);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.propertyImagesService.remove(+id);
+  @Delete()
+  @AutoApiResponse('DELETE')
+  remove(@Body() body: { url: string }) {
+    return this.propertyImagesService.remove(body.url);
   }
+  
 }

@@ -13,6 +13,7 @@ import { FaSearch } from "react-icons/fa";
 import dayjs from "dayjs";
 import { getLocation } from "../../../../store/slice/propertySlice";
 import { useNavigate } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
 
 export default function RentHouse() {
   const { posts, userSavePost } = useSelector(
@@ -22,7 +23,7 @@ export default function RentHouse() {
     (state: RootState) => state.propertyReducer
   );
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [location, setLocation] = useState("");
   const [dates, setDates] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
@@ -34,11 +35,10 @@ export default function RentHouse() {
     dispatch(getLocation()).unwrap();
   }, [dispatch]);
 
-  // Hàm lọc địa điểm theo input
+  // lọc địa điểm theo input
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocation(value);
-    // Lọc listLocation theo input của người dùng
     if (value) {
       const filtered = (listLocation ?? []).filter((loc) =>
         loc.toLowerCase().includes(value.toLowerCase())
@@ -49,21 +49,24 @@ export default function RentHouse() {
     }
   };
 
-  // Hàm xử lý chọn địa điểm
+  // xử lý chọn địa điểm
   const handleLocationSelect = (selectedLocation: string) => {
     setLocation(selectedLocation);
-    setFilteredLocations([]); 
+    setFilteredLocations([]);
   };
 
   const handleSearch = () => {
     if ((location && location.trim() !== "") || dates) {
-      navigate(`/search?location=${location}&available=${dates ? dates[0].format(
-        "YYYY-MM-DD") : ""}`)
+      navigate(
+        `/search?location=${location}&available=${
+          dates ? dates[0].format("YYYY-MM-DD") : ""
+        }`
+      );
     }
   };
 
   return (
-    <div className="container mx-auto p-4" style={{ maxWidth: "1200px" }}>
+    <div className="container mx-auto p-4 lg:mb-20 md:mb-10" style={{ maxWidth: "1200px" }}>
       {/* Search Bar */}
       <div className="bg-white shadow-md rounded-full px-4 py-4 flex flex-wrap items-center gap-4 max-w-4xl mx-auto my-8 border border-gray-300">
         <div className="relative flex-1">
@@ -107,7 +110,16 @@ export default function RentHouse() {
       </div>
 
       {/* Post list */}
-      <h2 className="text-2xl font-bold mb-4">Danh sách nhà cho thuê</h2>
+      <div className="flex justify-between items-center mb-8 mt-5 text-[#483507]">
+        <h2 className="text-3xl font-bold">New posts</h2>
+        <p
+  className="group flex items-center gap-1 text-[#483507] cursor-pointer transition duration-300"
+  onClick={() => navigate("/discovery")}
+>
+  <span className="group-hover:underline">View more</span>
+  <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+</p>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6 gap-4">
         {posts?.map((item: ActivePostType) => (
           <PostCard

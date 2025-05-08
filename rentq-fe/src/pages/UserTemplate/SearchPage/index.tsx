@@ -2,16 +2,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import { getPostByLocation } from "../../../store/slice/postSlice";
+import { getPostByLocation, getSavePost } from "../../../store/slice/postSlice";
 import { PostCardHorizontal } from "../../../components/Card/PostCardHorizontal";
 import { FaSearch } from "react-icons/fa";
 import { DatePicker, Pagination } from "antd";
 import { getLocation } from "../../../store/slice/propertySlice";
 import dayjs from "dayjs";
 import "dayjs/locale/en";
+import { getAuthData } from "../../../utils/helpers";
+import { PostsType } from "../../../types/types";
 
 const SearchPage = () => {
-  const { searchPost } = useSelector((state: RootState) => state.postReducer);
+  const { searchPost, userSavePost } = useSelector(
+    (state: RootState) => state.postReducer
+  );
   const { listLocation } = useSelector(
     (state: RootState) => state.propertyReducer
   );
@@ -30,6 +34,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     dispatch(getLocation()).unwrap();
+    dispatch(getSavePost(getAuthData()?.userId)).unwrap();
   }, []);
 
   useEffect(() => {
@@ -93,8 +98,6 @@ const SearchPage = () => {
     setFilteredLocations([]);
   };
 
-  console.log("searchPost", searchPost);
-
   return (
     <div className="flex max-w-7xl mx-auto my-5 px-4 gap-8">
       <div className="w-3/5 space-y-4">
@@ -148,7 +151,13 @@ const SearchPage = () => {
         </h1>
 
         {(searchPost?.posts ?? []).map((item) => (
-          <PostCardHorizontal key={item.post_id} item={item} />
+          <PostCardHorizontal
+            key={item.post_id}
+            item={item}
+            isSave={userSavePost.some(
+              (saved: PostsType) => saved.post_id === item.post_id
+            )}
+          />
         ))}
 
         {searchPost?.total && (

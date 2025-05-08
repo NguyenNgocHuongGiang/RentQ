@@ -17,8 +17,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAuthData } from "../../../utils/helpers";
 import { getUserProperties } from "../../../store/slice/propertySlice";
 import AddPostModal from "../../../components/Modal/AddPostModal";
-import { getUserPost } from "../../../store/slice/postSlice";
+import { deletePosts, getUserPost } from "../../../store/slice/postSlice";
 import { useNavigate } from "react-router-dom";
+import { FaTimes } from "react-icons/fa";
+import ConfirmModal from "../../../components/Modal/ConfirmModal";
+import { PropertyType } from "../../../types/types";
 
 const Properties = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -32,28 +35,37 @@ const Properties = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [editingProperty, setEditingProperty] = useState<any | null>(null);
+  const [editKey, setEditKey] = useState(0);
+
   const pageSize = 8;
 
   const navigate = useNavigate();
 
-  const renderDropdownItems = (propertyId: number) => [
+  const renderDropdownItems = (property: PropertyType) => [
     {
       key: "1",
       label: "Add Post",
       onClick: () => {
-        setSelectedPropertyId(propertyId);
+        setSelectedPropertyId(property.property_id ?? null);
         setIsAddPostModalOpen(true);
       },
     },
     {
       key: "2",
       label: "Add Bill",
-      onClick: () => console.log("Add Bill for property", propertyId),
+      onClick: () => console.log("Add Bill for property"),
     },
     {
       key: "3",
       label: "Edit property",
-      onClick: () => console.log("Edit property", propertyId),
+      onClick: () => {
+        setEditingProperty(property);
+        setEditKey(editKey + 1);
+        setIsModalOpen(true);
+      },
     },
   ];
 
@@ -71,7 +83,7 @@ const Properties = () => {
         property.address?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredProperties(filtered);
-      setCurrentPage(1); // reset page khi search
+      setCurrentPage(1);
     }
   }, [listProperties, searchTerm]);
 
@@ -84,6 +96,14 @@ const Properties = () => {
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+
+  const handleDeletePost = () => {
+    if (selectedPostId) {
+      dispatch(deletePosts(selectedPostId)).then(() => {
+        setIsConfirmModalOpen(false);
+      });
+    }
+  };
 
   return (
     <div style={{ padding: "1rem" }}>
@@ -116,6 +136,9 @@ const Properties = () => {
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
+        editingProperty={editingProperty}
+        editKey={editKey}
+        
       />
 
       <AddPostModal
@@ -135,11 +158,11 @@ const Properties = () => {
 
             const popoverContent =
               propertyPosts?.length > 0 ? (
-                <div>
+                <div className="w-[250px] max-h-[300px] overflow-y-auto">
                   {propertyPosts.map((post: any, index: number) => (
                     <div key={post.id}>
                       <div
-                        className={`py-2 cursor-pointer hover:bg-[#48340757] hover:px-2 transition-all duration-300 ${
+                        className={`relative py-2 pl-2 pr-6 cursor-pointer hover:bg-[#4834071a] transition-all duration-300 ${
                           post.is_approved ? "bg-green-100" : ""
                         }`}
                         onClick={() => navigate(`/detailpost/${post.alias}`)}
@@ -148,6 +171,15 @@ const Properties = () => {
                         <div className="text-xs text-gray-500">
                           Price: {post.price}
                         </div>
+
+                        <FaTimes
+                          className="absolute right-2 top-2 text-gray-400 hover:text-red-500 z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsConfirmModalOpen(true);
+                            setSelectedPostId(post.post_id);
+                          }}
+                        />
                       </div>
                       {index < propertyPosts.length - 1 && (
                         <hr className="border-gray-300" />
@@ -156,7 +188,7 @@ const Properties = () => {
                   ))}
                 </div>
               ) : (
-                <div>No posts</div>
+                <div className="w-[250px]">No posts</div>
               );
 
             return (
@@ -181,7 +213,7 @@ const Properties = () => {
                     />
                     <Dropdown
                       menu={{
-                        items: renderDropdownItems(property.property_id),
+                        items: renderDropdownItems(property),
                       }}
                       trigger={["click"]}
                     >
@@ -194,22 +226,24 @@ const Properties = () => {
                   </p>
 
                   <div className="mt-2">
-                    <Popover
-                      content={popoverContent}
-                      title="Posts"
-                      placement="top"
-                      trigger="hover"
-                    >
-                      <span
-                        className={`cursor-pointer hover:underline ${
-                          propertyPosts?.length > 0
-                            ? "text-green-600"
-                            : "text-gray-500"
-                        }`}
+                    {!isConfirmModalOpen && (
+                      <Popover
+                        content={popoverContent}
+                        title="Posts"
+                        placement="top"
+                        trigger="hover"
                       >
-                        View Posts
-                      </span>
-                    </Popover>
+                        <span
+                          className={`cursor-pointer hover:underline ${
+                            propertyPosts?.length > 0
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          View Posts
+                        </span>
+                      </Popover>
+                    )}
                   </div>
                 </Card>
               </Col>
@@ -221,6 +255,16 @@ const Properties = () => {
           </Col>
         )}
       </Row>
+
+      <ConfirmModal
+        open={isConfirmModalOpen}
+        title="Delete Confirmation"
+        content={`Are you sure you want to delete the post?`}
+        onOk={handleDeletePost}
+        onCancel={() => setIsConfirmModalOpen(false)}
+        okText="Delete"
+        cancelText="Cancel"
+      />
 
       {filteredProperties.length > pageSize && (
         <div className="mt-6 text-center">

@@ -1,18 +1,21 @@
 export type DefaultState = {
   loading: boolean;
+  error: string | null;
+} & Partial<{
   userPost?: any;
   data?: any;
   reviewData?: any;
   detailPost?: any;
   posts?: ActivePostType[];
-  error: string | null;
   listProperties?: any;
   userSavePost?: any;
   listMessages?: MessageType[];
   listReceivers?: any;
   listLocation?: string[];
   searchPost?: SearchPost;
-};
+  listPropertyImages?: PropertyImage[];
+}>;
+
 
 export type SearchPost = {
   posts: PostsType[];
@@ -93,6 +96,7 @@ export type PropertyImageType = {
 };
 
 export type PropertyImage = {
+  image_id?: number;
   property_id?: number;
   image_url: string;
   is_main: boolean;

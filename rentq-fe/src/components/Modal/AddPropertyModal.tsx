@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Input, Select, DatePicker, Row, Col, Button, Spin } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -10,6 +10,10 @@ import { AppDispatch } from "../../store";
 import {
   createNewProperty,
   createPropertyImage,
+  deletePropertyImages,
+  editProperty,
+  editPropertyImage,
+  getPropertiesImages,
   uploadImages,
 } from "../../store/slice/propertySlice";
 import { PropertyType } from "../../types/types";
@@ -23,12 +27,15 @@ interface AddPropertyModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (values: any) => void;
+  editingProperty?: PropertyType | null;
+  editKey: number | 0;
 }
 
 export interface ImageFile {
   id: string;
   file: File;
   name: string;
+  is_main?: boolean; // Added property
 }
 
 const furnitureOptions = ["full", "basic", "none"] as const;
@@ -43,6 +50,8 @@ const AddPropertyModal = ({
   visible,
   onClose,
   onSubmit,
+  editingProperty = null,
+  editKey = 0,
 }: AddPropertyModalProps) => {
   const [isNextStep, setIsNextStep] = useState(false);
   const [images, setImages] = useState<ImageFile[]>([]);
@@ -52,6 +61,59 @@ const AddPropertyModal = ({
   const utilitiesList = utilitiesData.map((item) => item.name);
   const [selectedUtilities, setSelectedUtilities] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingPropertyState, setEditingPropertyState] =
+    useState<PropertyType | null>(editingProperty);
+  const [originalImages, setOriginalImages] = useState<ImageFile[]>([]);
+
+  useEffect(() => {
+    if (editingProperty) {
+      setEditingPropertyState(editingProperty);
+      const [street, district, city] = editingProperty.address
+        ? editingProperty.address.split(", ").map((s) => s.trim())
+        : ["", "", ""];
+
+      const utilitiesArray = editingProperty.utilities
+        ? editingProperty.utilities.split(";").map((u) => u.trim())
+        : [];
+
+      setSelectedUtilities(utilitiesArray);
+
+      formik.setValues({
+        street,
+        district,
+        city,
+        area: editingProperty.area || 0,
+        utilities: editingProperty.utilities || "",
+        max_people: editingProperty.max_people || 1,
+        furniture: editingProperty.furniture || "none",
+        available_from: editingProperty.available_from || dayjs().toISOString(),
+        property_type: editingProperty.property_type || "apartment",
+        description: editingProperty.description || "",
+      });
+
+      dispatch(getPropertiesImages(editingProperty.property_id || 0))
+        .unwrap()
+        .then((res) => {
+          const imageFiles = res.map((image) => ({
+            id: image.image_url,
+            file: new File([], image.image_url),
+            name: image.image_url.split("/").pop() || "image",
+            is_main: image.is_main,
+          }));
+          setImages(imageFiles);
+          setOriginalImages(imageFiles);
+          const mainImageUrl = editingProperty?.property_images?.find((img) => img.is_main)?.image_url;
+
+          const mainImageFile = imageFiles.find((img) => img.id === mainImageUrl);
+          if (mainImageFile) {
+            setMainImage(mainImageFile.id);
+          }
+        });
+    } else {
+      formik.resetForm();
+      setSelectedUtilities([]);
+    }
+  }, [editingProperty, editKey]);
 
   const formik = useFormik({
     initialValues: {
@@ -84,6 +146,7 @@ const AddPropertyModal = ({
         .required("Required"),
     }),
     onSubmit: async (values) => {
+      // xu ly du lieu
       const { street, district, city, ...rest } = values;
       const fullAddress = `${street}, ${district}, ${city}`;
       const finalData: PropertyType = {
@@ -92,26 +155,124 @@ const AddPropertyModal = ({
         ...rest,
         available_from: dayjs(rest.available_from).toISOString(),
       };
+      const updatedImagesMain = images.map((img) => ({
+        ...img,
+        is_main: img.id === mainImage,
+      }));
+      const isMainList = updatedImagesMain.map((img) => img.is_main);
+
+      // goi api
       setIsUploading(true);
-      const data = await dispatch(createNewProperty(finalData)).unwrap();
-      const uploadedImages = await dispatch(
-        uploadImages(convertToFileList(images))
-      ).unwrap();
-      await dispatch(
-        createPropertyImage({
-          property_id: data.property_id,
-          images_url_list: uploadedImages,
-          is_main_list: [true, false],
-        })
-      );
+
+      if (editingPropertyState) {
+        finalData.property_id = editingPropertyState.property_id;
+        await dispatch(editProperty(finalData))
+          .unwrap()
+          .then(async () => {
+            const originalIds = originalImages.map((img) => img.id);
+            const currentIds = images.map((img) => img.id);
+
+            const newImages = images.filter(
+              (img) => !originalIds.includes(img.id) && img.file
+            );
+            const deletedImages = originalImages.filter(
+              (img) => !currentIds.includes(img.id)
+            );
+
+            // neu co hinh moi
+            if (newImages.length > 0) {
+              const newImageFiles = newImages.map((img) => ({
+                id: img.id,
+                file: img.file,
+                name: img.name,
+                is_main: img.is_main,
+              }));
+
+              const uploadedImages = await dispatch(
+                uploadImages(convertToFileList(newImageFiles))
+              ).unwrap();
+
+              const selectedMainId = document.querySelector<HTMLInputElement>('input[name="mainImage"]:checked')?.value;
+
+              const updatedImages = newImages.map((img) => ({
+                ...img,
+                is_main: img.id === selectedMainId,
+              }));
+
+              await dispatch(
+                createPropertyImage({
+                  property_id: finalData.property_id!,
+                  images_url_list: uploadedImages,
+                  is_main_list: updatedImages.map((img) => img.is_main),
+                })
+              );
+
+              // neu trong hinh moi co hinh main
+              if (updatedImages.some((img) => img.is_main)) {
+                const remainingImages = originalImages.filter(
+                  (img) => !deletedImages.some((deleted) => deleted.id === img.id)
+                );
+                const mainImageId = remainingImages.find((img) => img.is_main)?.id;
+                console.log(mainImageId, 'mainImageId');
+                
+                if (mainImageId) {
+                  dispatch(editPropertyImage({ url: mainImageId, status: false }));
+                }
+              }else{
+                handleChangeOldMainImage()
+              }
+            }else{
+              const selectedMainId = document.querySelector<HTMLInputElement>('input[name="mainImage"]:checked')?.value;
+             if(selectedMainId){
+              await dispatch(editPropertyImage({ url: selectedMainId, status: true })); 
+              setMainImage(selectedMainId)
+              handleChangeOldMainImage()
+             }
+            }
+
+            // neu xoa mot hinh
+            if (deletedImages.length > 0) {
+              const idsToDelete = deletedImages.map((img) => img.id);
+              idsToDelete.map((url) =>
+                dispatch(deletePropertyImages({ url })).unwrap()
+              );
+            }
+
+            setIsUploading(false);
+          });
+
+        toast.success("Property updated successfully!");
+      } else {
+        const data = await dispatch(createNewProperty(finalData)).unwrap();
+        const uploadedImages = await dispatch(
+          uploadImages(convertToFileList(images))
+        ).unwrap();
+        await dispatch(
+          createPropertyImage({
+            property_id: data.property_id,
+            images_url_list: uploadedImages,
+            is_main_list: isMainList,
+          })
+        );
+        toast.success("Property added successfully!");
+      }
       onSubmit(finalData);
+
+      // xu ly sau khi thanh cong
       formik.resetForm();
       setImages([]);
       setMainImage(null);
       setIsNextStep(false);
-      toast.success("Property added successfully!");
     },
   });
+
+  const handleChangeOldMainImage = async () => {
+    const originalMain = originalImages.find((img) => img.is_main);
+    const selectedMainId = document.querySelector<HTMLInputElement>('input[name="mainImage"]:checked')?.value;
+    if (originalMain?.id !== selectedMainId && originalMain?.id) {
+      await dispatch(editPropertyImage({ url: originalMain.id, status: false }));
+    }
+  };
 
   const convertToFileList = (files: ImageFile[]): FileList => {
     const dataTransfer = new DataTransfer();
@@ -120,6 +281,8 @@ const AddPropertyModal = ({
   };
 
   const handleCancel = () => {
+    setEditingPropertyState(null);
+    setSelectedUtilities([]);
     formik.resetForm();
     setImages([]);
     setMainImage(null);
@@ -165,10 +328,15 @@ const AddPropertyModal = ({
   return (
     <Modal
       title={
-        <h2 className="text-center uppercase text-xl">Add new property</h2>
+        <h2 className="text-center uppercase text-xl">
+          {editingPropertyState != null ? "Edit" : "Add"} new property
+        </h2>
       }
       open={visible}
-      onCancel={handleCancel}
+      onCancel={() => {
+        formik.resetForm();
+        handleCancel();
+      }}
       footer={
         isNextStep ? (
           <>
@@ -179,7 +347,7 @@ const AddPropertyModal = ({
               disabled={isUploading}
               onClick={() => formik.handleSubmit()}
             >
-              Add
+              {editingPropertyState != null ? "Edit" : "Add"} Property
             </Button>
           </>
         ) : (
@@ -397,6 +565,7 @@ const AddPropertyModal = ({
                           <input
                             type="radio"
                             name="mainImage"
+                            value={img.id}
                             checked={mainImage === img.id}
                             onChange={() => setMainImage(img.id)}
                           />

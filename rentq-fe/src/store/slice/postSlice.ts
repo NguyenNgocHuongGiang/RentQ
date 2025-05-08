@@ -59,18 +59,18 @@ export const getSavePost = createAsyncThunk<any, number>(
   }
 );
 
-// export const deletePosts = createAsyncThunk<ListingsProperty, number>(
-//   "posts/deletePosts",
-//   async (listingId, { rejectWithValue }) => {
-//     try {
-//       const response = await api.delete(`listings/${listingId}`);
-//       console.log(response.data.content);
-//       return response.data.content;
-//     } catch (error: any) {
-//       return rejectWithValue(error.response?.data || "Xóa thất bại!");
-//     }
-//   }
-// );
+export const deletePosts = createAsyncThunk<PostsType, number>(
+  "posts/deletePosts",
+  async (postId, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`posts/${postId}`);
+      console.log(response.data.content);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Xóa thất bại!");
+    }
+  }
+);
 
 export const getPostByLocation = createAsyncThunk<
   SearchPost,
@@ -92,7 +92,6 @@ export const getPostByLocation = createAsyncThunk<
       `posts${locationQuery}${availableQuery}?${pageQuery}&${sizeQuery}`
     );
 
-    // Trả về các bài post
     return response.data.content;
   } catch (error: any) {
     return rejectWithValue(error.response?.data || "Failed to fetch posts!");
@@ -366,14 +365,25 @@ const postSlice = createSlice({
       })
       .addCase(getPostByLocation.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload);
-        
         state.searchPost = action.payload;
-
-        console.log(state.searchPost);
-
       })
       .addCase(getPostByLocation.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      //
+      .addCase(deletePosts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deletePosts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userPost = state.userPost.filter(
+          (item: PostsType) => item.post_id !== action.payload.post_id
+        );
+
+      })
+      .addCase(deletePosts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
