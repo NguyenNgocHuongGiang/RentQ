@@ -6,7 +6,6 @@ import {
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { PrismaClient } from '@prisma/client';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class PropertiesService {

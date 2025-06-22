@@ -10,7 +10,7 @@ import * as multer from 'multer';
     MulterModule.register({
         storage: multer.memoryStorage(),
         fileFilter: (req, file, callback) => {
-            const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
             if (allowedMimeTypes.includes(file.mimetype)) {
               callback(null, true); // Accept file
             } else {

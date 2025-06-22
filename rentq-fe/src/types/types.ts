@@ -14,13 +14,13 @@ export type DefaultState = {
   listLocation?: string[];
   searchPost?: SearchPost;
   listPropertyImages?: PropertyImage[];
+  listContracts?: ContractType[];
 }>;
-
 
 export type SearchPost = {
   posts: PostsType[];
   total: number;
-}
+};
 
 export type User = {
   address?: string;
@@ -121,4 +121,30 @@ export type ReviewProperty = {
   comment: string;
   users?: {};
   created_at?: string;
+};
+
+export type ContractType = {
+  contract_id?: number;
+  property_id: number;
+  landlord_id: number;
+  start_date: string;
+  end_date: string;
+  actual_move_in_date?: string;
+  deposit: number;
+  rent: number;
+  status: "active" | "pending" | "terminated";
+  contract_file_url?: string;
+  terms_and_conditions?: string;
+  created_at?: string;
+  properties?: PropertyType;
+};
+
+export type ContractTenant = {
+  contract_id: number;
+  tenant_id: number;
+};
+
+export type ContractTenantRequest = {
+  contract_id: number;
+  emailList: string[];
 };

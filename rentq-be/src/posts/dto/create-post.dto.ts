@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsOptional, IsEnum, IsString, IsDate } from "class-validator";
-import { Type } from "class-transformer";  
 
 export class CreatePostDto {
     @ApiProperty({ example: 1, description: "Property's ID" })

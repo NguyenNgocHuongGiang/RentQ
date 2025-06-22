@@ -4,6 +4,7 @@ import userReducer from "./slice/userSlice";
 import postReducer from "./slice/postSlice";
 import propertyReducer from "./slice/propertySlice";
 import messageReducer from "./slice/messageSlice";
+import constractReducer from "./slice/contractSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     userReducer,
     postReducer,
     propertyReducer,
-    messageReducer
+    messageReducer,
+    constractReducer
   },
 });
 

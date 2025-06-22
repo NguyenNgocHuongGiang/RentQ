@@ -19,12 +19,15 @@ const routes: RouteConfig[] = [
         element: lazy(() => import("./../pages/UserTemplate/ProfilePage")),
         nested: [
           { path: "", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyProfile")) },
+          { path: "contracts", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyContracts")) },
           { path: "save-posts", element: lazy(() => import("../pages/UserTemplate/ProfilePage/SavePosts")) },
         ]
       },
       { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
       { path: "message", element: lazy(() => import("./../pages/UserTemplate/MessagePage"))},
       { path: "search", element: lazy(() => import("./../pages/UserTemplate/SearchPage"))},
+      { path: "contract-template", element: lazy(() => import("./../pages/AdminTemplate/Contracts/ContractTemplate"))},
+
     ]
   },
   {
@@ -38,6 +41,10 @@ const routes: RouteConfig[] = [
       {
         path: "properties",
         element: lazy(() => import("./../pages/AdminTemplate/Properties")),
+      },
+       {
+        path: "contracts",
+        element: lazy(() => import("./../pages/AdminTemplate/Contracts")),
       },
     ],
   },

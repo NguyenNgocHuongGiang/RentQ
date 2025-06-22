@@ -15,13 +15,17 @@ import AddPropertyModal from "../../../components/Modal/AddPropertyModal";
 import { AppDispatch } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 import { getAuthData } from "../../../utils/helpers";
-import { getUserProperties } from "../../../store/slice/propertySlice";
+import {
+  deleteProperty,
+  getUserProperties,
+} from "../../../store/slice/propertySlice";
 import AddPostModal from "../../../components/Modal/AddPostModal";
 import { deletePosts, getUserPost } from "../../../store/slice/postSlice";
 import { useNavigate } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
 import ConfirmModal from "../../../components/Modal/ConfirmModal";
 import { PropertyType } from "../../../types/types";
+import { toast } from "react-toastify";
 
 const Properties = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,6 +40,8 @@ const Properties = () => {
   const [filteredProperties, setFilteredProperties] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isConfirmModalDelProperty, setIsConfirmModalDelProperty] =
+    useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [editingProperty, setEditingProperty] = useState<any | null>(null);
   const [editKey, setEditKey] = useState(0);
@@ -65,6 +71,14 @@ const Properties = () => {
         setEditingProperty(property);
         setEditKey(editKey + 1);
         setIsModalOpen(true);
+      },
+    },
+    {
+      key: "4",
+      label: "Delete property",
+      onClick: () => {
+        setIsConfirmModalDelProperty(true);
+        setSelectedPropertyId(property.property_id ?? null);
       },
     },
   ];
@@ -101,6 +115,16 @@ const Properties = () => {
     if (selectedPostId) {
       dispatch(deletePosts(selectedPostId)).then(() => {
         setIsConfirmModalOpen(false);
+        toast.success('Delete post successfully')
+      });
+    }
+  };
+
+  const handleDeleteProperty = () => {
+    if (selectedPropertyId) {
+      dispatch(deleteProperty(selectedPropertyId)).then(() => {
+        setIsConfirmModalDelProperty(false);
+        toast.success('Delete property successfully')
       });
     }
   };
@@ -138,7 +162,6 @@ const Properties = () => {
         onSubmit={handleModalSubmit}
         editingProperty={editingProperty}
         editKey={editKey}
-        
       />
 
       <AddPostModal
@@ -262,6 +285,16 @@ const Properties = () => {
         content={`Are you sure you want to delete the post?`}
         onOk={handleDeletePost}
         onCancel={() => setIsConfirmModalOpen(false)}
+        okText="Delete"
+        cancelText="Cancel"
+      />
+
+      <ConfirmModal
+        open={isConfirmModalDelProperty}
+        title="Delete Confirmation"
+        content={`Are you sure you want to delete the property?`}
+        onOk={handleDeleteProperty}
+        onCancel={() => setIsConfirmModalDelProperty(false)}
         okText="Delete"
         cancelText="Cancel"
       />

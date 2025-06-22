@@ -30,7 +30,7 @@ export default function MessagePage() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const userId = getAuthData()?.userId;
-  
+
   useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io("http://localhost:8080", {
@@ -57,13 +57,17 @@ export default function MessagePage() {
 
   useEffect(() => {
     const handleReceiveMessage = (newMessage: MessageType) => {
-      dispatch(addNewMessage(newMessage));
+      if (newMessage.sender_id !== userId) {
+        dispatch(addNewMessage(newMessage));
+      }
+
+      // dispatch(addNewMessage(newMessage));
       dispatch(
         updateReceiverLastMessage({
           sender_id: newMessage.sender_id,
           receiver_id: newMessage.receiver_id,
           content: newMessage.content,
-          sent_at: new Date().toISOString(), 
+          sent_at: new Date().toISOString(),
         })
       );
     };
@@ -92,19 +96,19 @@ export default function MessagePage() {
     try {
       const userId = getAuthData()?.userId;
       await dispatch(getPeopleMess(userId)).unwrap();
-  
+
       if (defaultHost) {
-        await dispatch(getUserMessage({
-          senderId: userId,
-          receiverId: defaultHost?.id,
-        })).unwrap();
+        await dispatch(
+          getUserMessage({
+            senderId: userId,
+            receiverId: defaultHost?.id,
+          })
+        ).unwrap();
       }
     } catch (error) {
       console.error("Lỗi khi fetch message: ", error);
     }
   };
-  
- 
 
   const handleSelectContact = (contact: any) => {
     setSelectedHost(contact);
@@ -125,6 +129,7 @@ export default function MessagePage() {
       receiver_id: selectedHost?.user_id,
       content: input,
     };
+     dispatch(addNewMessage(message));
     socketRef.current?.emit("sendMessage", message);
     setInput("");
   };

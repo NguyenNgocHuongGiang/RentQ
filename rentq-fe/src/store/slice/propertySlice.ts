@@ -107,7 +107,7 @@ export const editProperty = createAsyncThunk<PropertyType, PropertyType>(
 
 export const editPropertyImage = createAsyncThunk<
   PropertyImage,
-  { url: string, status: boolean }
+  { url: string; status: boolean }
 >("property/editPropertyImage", async (credentials, { rejectWithValue }) => {
   try {
     const response = await api.put(`property-images`, credentials);
@@ -131,6 +131,19 @@ export const deletePropertyImages = createAsyncThunk<
     return rejectWithValue(error.response?.data || "Xóa thất bại!");
   }
 });
+
+export const deleteProperty = createAsyncThunk<PropertyType, number>(
+  "property/deleteProperty",
+  async (propertyId, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`properties/${propertyId}`);
+      console.log(response.data.content);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Xóa thất bại!");
+    }
+  }
+);
 
 const initialState: DefaultState = {
   loading: false,
@@ -247,7 +260,7 @@ const propertySlice = createSlice({
         state.loading = false;
 
         // Cập nhật lại listProperties với thông tin ảnh mới
-        const updatedProperty = action.payload; // Giả sử action.payload chứa thông tin property và ảnh đã được cập nhật
+        const updatedProperty = action.payload;
 
         // Tìm property cần cập nhật trong listProperties
         const propertyIndex = state.listProperties.findIndex(
@@ -259,12 +272,29 @@ const propertySlice = createSlice({
         if (propertyIndex !== -1) {
           state.listProperties[propertyIndex] = {
             ...state.listProperties[propertyIndex],
-            property_images: updatedProperty, // Cập nhật danh sách ảnh
+            property_images: updatedProperty,
           };
         }
       })
 
       .addCase(editPropertyImage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string | null;
+      })
+
+      //
+      .addCase(deleteProperty.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProperty.fulfilled, (state, action) => {
+        state.loading = false;
+        state.listProperties = (state.listProperties ?? []).filter(
+          (property: PropertyType) =>
+            property.property_id !== action.payload.property_id
+        );
+      })
+      .addCase(deleteProperty.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string | null;
       });

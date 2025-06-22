@@ -15,33 +15,55 @@ export class FileUploadService {
   }
 
   // async uploadFile(file: Express.Multer.File): Promise<string> {
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-  //       const buffer = await sharp(file.buffer)
-  //         .resize({ width: 900 })
-  //         .avif({ quality: 60 })
-  //         .toBuffer();
+  //   try {
+  //     const isImage = file.mimetype.startsWith('image/');
+  //     const isPDF = file.mimetype === 'application/pdf';
 
-  //       cloudinary.uploader.upload_stream(
-  //         { folder: 'RentQ',  resource_type: 'auto' , timeout: 10000},
-  //         (error, result) => {
-  //           if (error) {
-  //             console.error('Cloudinary error:', error);
-  //             return reject(error);
-  //           }
-  //           if (!result) {
-  //             return reject(new Error('Upload failed: No result from Cloudinary.'));
-  //           }
-  //           console.log('Cloudinary upload result:', result);
-  //           resolve(result.secure_url);
-  //         }
-  //       ).end(buffer);
-  //     } catch (error) {
-  //       reject(error);
-  //     }
-  //   });
+  //     const buffer =
+  //       isImage && file.buffer.length > 2 * 1024 * 1024
+  //         ? await sharp(file.buffer)
+  //             .resize({ width: 900 })
+  //             .avif({ quality: 50 })
+  //             .toBuffer()
+  //         : file.buffer;
+
+  //     const resourceType = isPDF ? 'raw' : 'auto';
+  //     const publicId = file.originalname.replace(/\.[^/.]+$/, '');
+
+  //     return new Promise((resolve, reject) => {
+  //       cloudinary.uploader
+  //         .upload_stream(
+  //           {
+  //             folder: 'RentQ',
+  //             resource_type: resourceType,
+  //             timeout: 20000,
+  //             public_id: `${publicId}`,
+  //             use_filename: true,
+  //             unique_filename: false,
+  //           },
+  //           (error, result) => {
+  //             if (error) {
+  //               console.error('Cloudinary error:', error);
+  //               return reject(error);
+  //             }
+  //             if (!result) {
+  //               return reject(
+  //                 new Error('Upload failed: No result from Cloudinary'),
+  //               );
+  //             }
+  //             console.log('Cloudinary upload result:', result);
+  //             resolve(result.secure_url);
+  //           },
+  //         )
+  //         .end(buffer);
+  //     });
+  //   } catch (error) {
+  //     console.error('Upload error:', error);
+  //     throw error;
+  //   } finally {
+  //     console.timeEnd('cloudinary');
+  //   }
   // }
-
   async uploadFile(file: Express.Multer.File): Promise<string> {
     try {
       console.time('sharp');
