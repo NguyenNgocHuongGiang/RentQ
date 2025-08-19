@@ -27,6 +27,23 @@ export default function Profile() {
             </NavLink>
           </li>
 
+          {/* User Information */}
+          <li>
+            <NavLink
+              to="/me/user-information"
+              end
+              className={({ isActive }) =>
+                `block p-3 rounded-lg cursor-pointer transition duration-300 ease-in-out ${
+                  isActive
+                    ? "bg-[#483507] text-white font-semibold shadow-lg border-b-4 border-[#a57d38]"
+                    : "hover:bg-[#483507] hover:text-white hover:scale-105 bg-[#c2bdb5]"
+                }`
+              }
+            >
+              User Information
+            </NavLink>
+          </li>
+
           {/* Your Posts */}
           <li>
             <NavLink

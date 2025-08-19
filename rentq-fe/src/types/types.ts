@@ -127,9 +127,9 @@ export type ContractType = {
   contract_id?: number;
   property_id: number;
   landlord_id: number;
-  start_date: string;
-  end_date: string;
-  actual_move_in_date?: string;
+  start_date: string | null;
+  end_date: string | null;
+  actual_move_in_date?: string | null;
   deposit: number;
   rent: number;
   status: "active" | "pending" | "terminated";

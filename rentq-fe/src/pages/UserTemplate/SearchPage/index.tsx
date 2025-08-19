@@ -160,7 +160,7 @@ const SearchPage = () => {
           />
         ))}
 
-        {searchPost?.total && (
+        {searchPost && typeof searchPost.total === "number" && searchPost.total > 0 ? (
           <div className="flex justify-center mt-8">
             <Pagination
               current={currentPage}
@@ -180,6 +180,8 @@ const SearchPage = () => {
               showSizeChanger={false} // Không cho chọn pageSize
             />
           </div>
+        ): (
+         <></>
         )}
       </div>
 

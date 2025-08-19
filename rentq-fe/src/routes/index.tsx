@@ -1,4 +1,4 @@
-import { lazy } from 'react'
+import { lazy } from "react";
 
 declare interface RouteConfig {
   path: string;
@@ -11,24 +11,68 @@ const routes: RouteConfig[] = [
     path: "/",
     element: lazy(() => import("./../pages/UserTemplate")),
     nested: [
-      { path: "", element: lazy(() => import("./../pages/UserTemplate/Homepage"))},
-      { path: "discovery", element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage"))},
-      { path: "request-role", element: lazy(() => import("./../pages/UserTemplate/RequestRole"))},
-      { 
-        path: "me", 
+      {
+        path: "",
+        element: lazy(() => import("./../pages/UserTemplate/Homepage")),
+      },
+      {
+        path: "discovery",
+        element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage")),
+      },
+      {
+        path: "request-role",
+        element: lazy(() => import("./../pages/UserTemplate/RequestRole")),
+      },
+      {
+        path: "me",
         element: lazy(() => import("./../pages/UserTemplate/ProfilePage")),
         nested: [
-          { path: "", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyProfile")) },
-          { path: "contracts", element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyContracts")) },
-          { path: "save-posts", element: lazy(() => import("../pages/UserTemplate/ProfilePage/SavePosts")) },
-        ]
+          {
+            path: "",
+            element: lazy(
+              () => import("./../pages/UserTemplate/ProfilePage/MyProfile")
+            ),
+          },
+          {
+            path: "user-information",
+            element: lazy(
+              () =>
+                import("./../pages/UserTemplate/ProfilePage/UserInformation")
+            ),
+          },
+          {
+            path: "contracts",
+            element: lazy(
+              () => import("./../pages/UserTemplate/ProfilePage/MyContracts")
+            ),
+          },
+          {
+            path: "save-posts",
+            element: lazy(
+              () => import("../pages/UserTemplate/ProfilePage/SavePosts")
+            ),
+          },
+        ],
       },
-      { path: "detailpost/:alias", element: lazy(() => import("./../pages/UserTemplate/DetailPostPage"))},
-      { path: "message", element: lazy(() => import("./../pages/UserTemplate/MessagePage"))},
-      { path: "search", element: lazy(() => import("./../pages/UserTemplate/SearchPage"))},
-      { path: "contract-template", element: lazy(() => import("./../pages/AdminTemplate/Contracts/ContractTemplate"))},
-
-    ]
+      {
+        path: "detailpost/:alias",
+        element: lazy(() => import("./../pages/UserTemplate/DetailPostPage")),
+      },
+      {
+        path: "message",
+        element: lazy(() => import("./../pages/UserTemplate/MessagePage")),
+      },
+      {
+        path: "search",
+        element: lazy(() => import("./../pages/UserTemplate/SearchPage")),
+      },
+      {
+        path: "contract-template",
+        element: lazy(
+          () => import("./../pages/AdminTemplate/Contracts/ContractTemplate")
+        ),
+      },
+    ],
   },
   {
     path: "/manage",
@@ -42,9 +86,13 @@ const routes: RouteConfig[] = [
         path: "properties",
         element: lazy(() => import("./../pages/AdminTemplate/Properties")),
       },
-       {
+      {
         path: "contracts",
         element: lazy(() => import("./../pages/AdminTemplate/Contracts")),
+      },
+      {
+        path: "bills",
+        element: lazy(() => import("./../pages/AdminTemplate/Bills")),
       },
     ],
   },
@@ -52,14 +100,34 @@ const routes: RouteConfig[] = [
     path: "/auth",
     element: lazy(() => import("./../pages/AuthTemplate")),
     nested: [
-      { path: "login", element: lazy(() => import("./../pages/AuthTemplate/LoginPage"))},
-      { path: "register", element: lazy(() => import("./../pages/AuthTemplate/RegisterPage"))},
-      { path: "forgotPass", element: lazy(() => import("./../pages/AuthTemplate/ForgotPasswordPage"))},
-      { path: "verify-success", element: lazy(() => import("../pages/AuthTemplate/Verification/verifySuccess"))},
-      { path: "verify-fail", element: lazy(() => import("../pages/AuthTemplate/Verification/verifyFail"))},
-    ]
+      {
+        path: "login",
+        element: lazy(() => import("./../pages/AuthTemplate/LoginPage")),
+      },
+      {
+        path: "register",
+        element: lazy(() => import("./../pages/AuthTemplate/RegisterPage")),
+      },
+      {
+        path: "forgotPass",
+        element: lazy(
+          () => import("./../pages/AuthTemplate/ForgotPasswordPage")
+        ),
+      },
+      {
+        path: "verify-success",
+        element: lazy(
+          () => import("../pages/AuthTemplate/Verification/verifySuccess")
+        ),
+      },
+      {
+        path: "verify-fail",
+        element: lazy(
+          () => import("../pages/AuthTemplate/Verification/verifyFail")
+        ),
+      },
+    ],
   },
-  
 ];
 
 export { routes };

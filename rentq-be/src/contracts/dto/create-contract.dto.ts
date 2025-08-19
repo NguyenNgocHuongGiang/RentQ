@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -41,12 +42,10 @@ export class CreateContractDto {
   actual_move_in_date?: string;
 
   @ApiProperty({ example: 5000000.00, description: 'Deposit amount (VND)' })
-  @IsNumber()
   @IsNotEmpty({ message: 'Deposit is required' })
   deposit: number;
 
   @ApiProperty({ example: 15000000.00, description: 'Monthly rent (VND)' })
-  @IsNumber()
   @IsNotEmpty({ message: 'Rent is required' })
   rent: number;
 

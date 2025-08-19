@@ -79,8 +79,9 @@ const MiniTemplate = ({
       <p className="indent">
         CMND số: {landlord.cardNumber || "...................."}, Cơ quan cấp:{" "}
         {landlord.placeIssue || "...................."}, Ngày cấp:{" "}
-        {moment(landlord.dateIssue).format("DD/MM/YYYY") ||
-          "...................."}
+        {moment(landlord.dateIssue).isValid()
+          ? moment(landlord.dateIssue).format("DD/MM/YYYY")
+          : "...................."}
       </p>
       <p className="indent">
         Nơi đăng ký thường trú:
@@ -98,8 +99,9 @@ const MiniTemplate = ({
       <p className="indent">
         CMND số: {tenant.cardNumber || "...................."}, Cơ quan cấp:{" "}
         {tenant.placeIssue || "...................."}, Ngày cấp:{" "}
-        {moment(tenant.dateIssue).format("DD/MM/YYYY") ||
-          "...................."}
+        {moment(tenant.dateIssue).isValid()
+          ? moment(tenant.dateIssue).format("DD/MM/YYYY")
+          : "...................."}
       </p>
       <p className="indent">
         Nơi đăng ký thường trú:

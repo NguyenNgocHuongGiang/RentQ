@@ -8,16 +8,24 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store";
-import { getLandlordContracts } from "../../../store/slice/contractSlice";
+import {
+  deleteContract,
+  getLandlordContracts,
+} from "../../../store/slice/contractSlice";
 import { getAuthData } from "../../../utils/helpers";
 import { ContractType } from "../../../types/types";
 import moment from "moment";
 import AddContractModal from "../../../components/Modal/AddContractModal";
+import { toast } from "react-toastify";
 
 const ContractsPage = () => {
   const { listContracts } = useSelector((state: any) => state.constractReducer);
   const dispatch = useDispatch<AppDispatch>();
   const [isOpenContractModal, setIsOpenContractModal] = useState(false);
+  const [editingContract, setEditingContract] = useState<ContractType | null>(
+    null
+  );
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     dispatch(getLandlordContracts(getAuthData()?.userId)).unwrap();
@@ -34,6 +42,30 @@ const ContractsPage = () => {
     }
   };
 
+  const handleEditContract = (contract: ContractType) => {
+    setEditingContract(contract);
+    setIsOpenContractModal(true);
+  };
+
+  const handleDeleteContract = (contractId: number) => {
+    dispatch(deleteContract(contractId))
+      .unwrap()
+      .then(() => {
+        toast.success("Contract deleted successfully!");
+      })
+      .catch(() => {
+        toast.error("Failed to delete contract.");
+      });
+  };
+
+  const filteredContracts = listContracts?.filter((contract: ContractType) => {
+    const search = searchText.toLowerCase();
+    return (
+      contract.properties?.address?.toLowerCase().includes(search) ||
+      contract.contract_id?.toString().includes(search)
+    );
+  });
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -41,6 +73,8 @@ const ContractsPage = () => {
           placeholder="Search contracts"
           allowClear
           style={{ maxWidth: 300 }}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
         />
 
         <Button
@@ -65,72 +99,103 @@ const ContractsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {listContracts?.map((contract: ContractType, index: number) => (
-              <tr key={contract.contract_id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 border-b text-center">{index + 1}</td>
-                <td className="px-4 py-3 border-b">
-                  {contract.properties?.address}
-                </td>
-                <td className="px-4 py-3 border-b text-center">
-                  {moment(contract.start_date).format("DD/MM/YYYY")}
-                </td>
-                <td className="px-4 py-3 border-b text-center">
-                  {moment(contract.end_date).format("DD/MM/YYYY")}
-                </td>
-                <td className="px-4 py-3 border-b text-center">
-                  {contract.end_date && contract.start_date
-                    ? (() => {
-                        const duration = moment.duration(
-                          moment(contract.end_date).diff(
-                            moment(contract.start_date)
-                          )
-                        );
-                        const years = duration.years();
-                        const months = duration.months();
-                        const days = duration.days();
-                        return `${years > 0 ? `${years} năm ` : ""}${
-                          months > 0 ? `${months} tháng ` : ""
-                        }${days > 0 ? `${days} ngày` : ""}`;
-                      })()
-                    : "....."}{" "}
-                </td>
-                <td className="px-4 py-3 border-b text-center">
-                  <div className="flex justify-center space-x-4">
-                    <button
-                      onClick={() =>
-                        contract.contract_id !== undefined &&
-                        handleViewPDF(contract.contract_id)
-                      }
-                      className="text-blue-600 hover:text-blue-800 transition text-xl cursor-pointer"
-                      title="View PDF"
-                    >
-                      <EyeOutlined />
-                    </button>
-                    <button
-                      onClick={() => {}}
-                      className="text-orange-600 hover:text-orange-800 transition text-xl"
-                      title="Update PDF"
-                    >
-                      <EditOutlined />
-                    </button>
-                    <button
-                      onClick={() => {}}
-                      className="text-red-600 hover:text-red-800 transition text-xl"
-                      title="Delete PDF"
-                    >
-                      <DeleteOutlined />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {filteredContracts?.map((contract: ContractType, index: number) => {
+              const today = moment();
+              const startDate = contract.start_date
+                ? moment(contract.start_date)
+                : null;
+              const endDate = contract.end_date
+                ? moment(contract.end_date)
+                : null;
+
+              let rowClass = "";
+
+              if (startDate && startDate.isAfter(today)) {
+                // Chưa bắt đầu
+                rowClass = "bg-green-100 text-green-700 font-semibold";
+              } else if (endDate && endDate.diff(today, "days") <= 30) {
+                // Gần hết hạn
+                rowClass = "bg-red-100 text-red-700 font-semibold";
+              }
+
+              return (
+                <tr
+                  key={contract.contract_id}
+                  className={`hover:bg-gray-50 ${rowClass}`}
+                >
+                  <td className="px-4 py-3 border-b text-center">
+                    {index + 1}
+                  </td>
+                  <td className="px-4 py-3 border-b">
+                    {contract.properties?.address}
+                  </td>
+                  <td className="px-4 py-3 border-b text-center">
+                    {moment(contract.start_date).format("DD/MM/YYYY")}
+                  </td>
+                  <td className="px-4 py-3 border-b text-center">
+                    {moment(contract.end_date).format("DD/MM/YYYY")}
+                  </td>
+                  <td className="px-4 py-3 border-b text-center">
+                    {contract.end_date && contract.start_date
+                      ? (() => {
+                          const duration = moment.duration(
+                            moment(contract.end_date).diff(
+                              moment(contract.start_date)
+                            )
+                          );
+                          const years = duration.years();
+                          const months = duration.months();
+                          const days = duration.days();
+                          return `${years > 0 ? `${years} năm ` : ""}${
+                            months > 0 ? `${months} tháng ` : ""
+                          }${days > 0 ? `${days} ngày` : ""}`;
+                        })()
+                      : "....."}
+                  </td>
+                  <td className="px-4 py-3 border-b text-center">
+                    <div className="flex justify-center space-x-4">
+                      <button
+                        onClick={() =>
+                          contract.contract_id !== undefined &&
+                          handleViewPDF(contract.contract_id)
+                        }
+                        className="text-blue-600 hover:text-blue-800 transition text-xl cursor-pointer"
+                        title="View PDF"
+                      >
+                        <EyeOutlined />
+                      </button>
+                      <button
+                        onClick={() => handleEditContract(contract)}
+                        className="text-orange-600 hover:text-orange-800 transition text-xl"
+                        title="Update PDF"
+                      >
+                        <EditOutlined />
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleDeleteContract(contract.contract_id ?? 0);
+                        }}
+                        className="text-red-600 hover:text-red-800 transition text-xl"
+                        title="Delete PDF"
+                      >
+                        <DeleteOutlined />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       <AddContractModal
         isOpen={isOpenContractModal}
-        onClose={() => setIsOpenContractModal(false)}
+        onClose={() => {
+          setIsOpenContractModal(false);
+          setEditingContract(null);
+        }}
+        contractData={editingContract}
       />
     </div>
   );

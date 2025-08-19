@@ -9,7 +9,6 @@ export class ContractsService {
 
   async create(createContractDto: CreateContractDto) {
     const { landlord_id } = createContractDto;
-    // Check if landlord exists
     const landlord = await this.prisma.users.findUnique({
       where: { user_id: landlord_id },
     });
@@ -41,11 +40,22 @@ export class ContractsService {
     });
   }
 
-  update(id: number, updateContractDto: UpdateContractDto) {
-    return `This action updates a #${id} contract`;
+  async update(contractId: number, updateContractDto: UpdateContractDto) {
+    console.log(contractId);
+    
+    return this.prisma.contracts.update({
+      where: {
+        contract_id: contractId,
+      },
+      data: {...updateContractDto}
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} contract`;
+  async remove(id: number) {
+    return this.prisma.contracts.delete({
+      where: {
+        contract_id: id
+      }
+    });
   }
 }

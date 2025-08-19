@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
@@ -27,13 +27,15 @@ export class ContractsController {
     return this.contractsService.getContractByLandlordID(+id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto) {
-  //   return this.contractsService.update(+id, updateContractDto);
-  // }
+  @Put(':contractId')
+  @AutoApiResponse('PUT')
+  update(@Param('contractId') contractId: string, @Body() updateContractDto: UpdateContractDto) {
+    return this.contractsService.update(+contractId, updateContractDto);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.contractsService.remove(+id);
-  // }
+  @Delete(':id')
+  @AutoApiResponse('DELETE')
+  remove(@Param('id') id: string) {
+    return this.contractsService.remove(+id);
+  }
 }

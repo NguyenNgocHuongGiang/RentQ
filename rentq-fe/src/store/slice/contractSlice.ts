@@ -57,6 +57,59 @@ export const createContractTenant = createAsyncThunk<
   }
 });
 
+export const deleteContractTenant = createAsyncThunk<
+  number,
+  ContractTenantRequest
+>("contract/deleteContractTenant", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await api.delete(`contract-tenants`, {
+      data: credentials,
+    });
+    return response.data.content;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || "Create failed!");
+  }
+});
+
+export const getContractTenantByContractID = createAsyncThunk<any, number>(
+  "contract/getContractTenantByContractID",
+  async (contract_id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(
+        `contract-tenants/get-by-contractId/${contract_id}`
+      );
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
+    }
+  }
+);
+
+export const editContract = createAsyncThunk<ContractType, ContractType>(
+  "contract/editContract",
+  async ({ contract_id, ...data }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(`contracts/${contract_id}`, data);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Create failed!");
+    }
+  }
+);
+
+export const deleteContract = createAsyncThunk<ContractType, number>(
+  "contract/deleteContract",
+  async (contractId, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`contracts/${contractId}`);
+      console.log(response.data.content);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Xóa thất bại!");
+    }
+  }
+);
+
 const initialState: DefaultState = {
   listContracts: [],
   loading: false,
@@ -108,6 +161,44 @@ const contractSlice = createSlice({
       state.listContracts = tenantContracts;
     });
     builder.addCase(getContractByTenantID.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Edit contract
+    builder.addCase(editContract.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(editContract.fulfilled, (state, action) => {
+      state.loading = false;
+      state.listContracts = state.listContracts?.map(
+        (contract: ContractType) => {
+          if (contract.contract_id === action.payload.contract_id) {
+            return { ...contract, ...action.payload };
+          }
+          return contract;
+        }
+      );
+    });
+    builder.addCase(editContract.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    //
+    builder.addCase(deleteContract.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(deleteContract.fulfilled, (state, action) => {
+      state.loading = false;
+      state.listContracts = (state.listContracts ?? []).filter(
+        (contract: ContractType) =>
+          contract.contract_id !== action.payload.contract_id
+      );
+    });
+    builder.addCase(deleteContract.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });

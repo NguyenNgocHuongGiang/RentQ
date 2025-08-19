@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 
 export const getAuthData = () => {
@@ -102,4 +103,25 @@ export const numberToVietnameseWords = (number:number) => {
   }
 
   return result.trim() + " đồng";
+}
+
+export const normalizeContractData = (data: any) => ({
+  landlord_id: Number(data.landlord_id),
+  property_id: Number(data.property_id),
+  deposit: Number(data.deposit),
+  rent: Number(data.rent),
+  start_date: data.start_date ? dayjs(data.start_date).toISOString() : null,
+  end_date: data.end_date ? dayjs(data.end_date).toISOString() : null,
+  actual_move_in_date: data.actual_move_in_date
+    ? dayjs(data.actual_move_in_date).toISOString()
+    : null,
+  status: data.status,
+  contract_file_url: data.contract_file_url?.trim(),
+  terms_and_conditions: data.terms_and_conditions?.trim(),
+});
+
+
+export function toISOStringLocal(date: Date): string {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().split("T")[0]; 
 }

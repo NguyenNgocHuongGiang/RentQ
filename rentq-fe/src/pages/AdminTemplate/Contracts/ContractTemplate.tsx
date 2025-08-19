@@ -241,8 +241,6 @@ const ContractTemplate = () => {
     });
   };
 
-  const handleGetLink = async () => {};
-
 
   return (
     <div className="max-w-7xl mx-auto mb-10">
@@ -495,15 +493,15 @@ const ContractTemplate = () => {
 
             <div className="flex gap-2 justify-end">
               <Button
-                type="default"
+                type="primary"
                 onClick={handleDownloadPDF}
                 className="mt-2.5"
               >
                 Download PDF
               </Button>
-              <Button type="primary" onClick={handleGetLink} className="mt-2.5">
+              {/* <Button type="primary" onClick={handleGetLink} className="mt-2.5">
                 Upload and get link
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>

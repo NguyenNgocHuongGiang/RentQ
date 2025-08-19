@@ -11,11 +11,11 @@ const SignatureSection = () => {
     setSignature("");
   };
 
-  // const saveSignature = () => {
-  //   if (sigPad.current) {
-  //     setSignature(sigPad.current.getTrimmedCanvas().toDataURL("image/png"));
-  //   }
-  // };
+  const saveSignature = () => {
+    if (sigPad.current) {
+      setSignature(sigPad.current.getTrimmedCanvas().toDataURL("image/png"));
+    }
+  };
 
   return (
     <div>
@@ -29,9 +29,9 @@ const SignatureSection = () => {
         }}
       />
       <div className="flex justify-center mt-2 space-x-2 no-export">
-        {/* <button onClick={saveSignature} className="px-2 py-1 border">
+        <button onClick={saveSignature} className="px-2 py-1 border">
           Lưu
-        </button> */}
+        </button>
         <button onClick={clearSignature} className="px-2 py-1 border cursor-pointer">
           Xóa
         </button>

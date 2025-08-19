@@ -312,11 +312,12 @@ const DetailPostPage = () => {
                     Response rate: 100% <br />
                     Response time: Within hours
                   </p>
+
                   <button
                     className="cursor-pointer mt-5 px-4 py-2 bg-[#483507] text-white rounded-lg hover:bg-[#483507] hover:cursor-pointer"
-                    onClick={handleMessage}
+                    onClick={() => {}}
                   >
-                    Message the host
+                    Schedule an Appointment
                   </button>
                 </div>
               </div>
@@ -349,12 +350,12 @@ const DetailPostPage = () => {
                     ).toLocaleDateString()}
                   </p>
                 </div>
-                <a
-                  href="/host-info"
-                  className="mt-4 bg-[#483507] text-white py-2 px-4 rounded-lg hover:bg-[#796a49]"
+                <button
+                  className="mt-4 w-full bg-[#483507] text-white p-3 rounded-lg hover:bg-[#c2bdb5] hover:text-[#483507] hover:font-bold hover:cursor-pointer"
+                  onClick={handleMessage}
                 >
-                  Schedule an Appointment
-                </a>
+                  Message the host
+                </button>
               </div>
 
               <div className="text-sm text-gray-600">

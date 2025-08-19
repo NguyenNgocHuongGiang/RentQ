@@ -3,47 +3,70 @@ import { useEffect, useState } from "react";
 import { AppDispatch } from "../../store";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserProperties } from "../../store/slice/propertySlice";
-import { getAuthData } from "../../utils/helpers";
+import { getAuthData, normalizeContractData } from "../../utils/helpers";
 import { ContractType, PropertyType } from "../../types/types";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import moment from "moment";
 import {
   createContractTenant,
   createNewContract,
+  deleteContractTenant,
+  editContract,
+  getContractTenantByContractID,
 } from "../../store/slice/contractSlice";
 import { toast } from "react-toastify";
 import { FaTrash } from "react-icons/fa";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
 interface AddContractProps {
   isOpen: boolean;
   onClose: () => void;
+  contractData?: ContractType | null;
 }
 
-const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
+const AddContractModal: React.FC<AddContractProps> = ({
+  isOpen,
+  onClose,
+  contractData,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const { listProperties, loading } = useSelector(
     (state: any) => state.propertyReducer
   );
   const [step, setStep] = useState(1);
+  const [oldEmailList, setOldEmailList] = useState<string[]>([]);
 
   useEffect(() => {
     dispatch(getUserProperties(getAuthData()?.userId)).unwrap();
   }, []);
 
+  useEffect(() => {
+    if (contractData?.contract_id) {
+      dispatch(getContractTenantByContractID(contractData.contract_id))
+        .unwrap()
+        .then((info: any) => {
+          const emailList = info.map((t: any) => t.users.email);
+          setOldEmailList(emailList);
+          formik.setFieldValue("tenant_email", emailList);
+        });
+    }
+    console.log(contractData);
+  }, [contractData]);
+
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      property_id: "",
-      deposit: 0,
-      rent: 0,
-      start_date: null,
-      end_date: null,
-      actual_move_in_date: null,
-      contract_file_url: "",
-      terms_and_conditions: "",
-      tenant_email: [""],
+      property_id: contractData?.properties?.address || "",
+      deposit: contractData?.deposit || 0,
+      rent: contractData?.rent || 0,
+      start_date: contractData?.start_date || null,
+      end_date: contractData?.end_date || null,
+      actual_move_in_date: contractData?.actual_move_in_date || null,
+      contract_file_url: contractData?.contract_file_url || "",
+      terms_and_conditions: contractData?.terms_and_conditions || "",
+      tenant_email: contractData ? [] : [""],
     },
     validationSchema: Yup.object({
       property_id: Yup.string().required("Please select a property"),
@@ -62,34 +85,103 @@ const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
     }),
     onSubmit: async (values) => {
       const { tenant_email, ...restValues } = values;
-      const contractData: ContractType = {
+      const contractSubmit: ContractType = {
         ...restValues,
         property_id: Number(values.property_id),
         landlord_id: getAuthData()?.userId,
         status: "pending",
-        start_date: values.start_date ?? "",
-        end_date: values.end_date ?? "",
-        actual_move_in_date: values.actual_move_in_date ?? "",
+        start_date: values.start_date ?? null,
+        end_date: values.end_date ?? null,
+        actual_move_in_date: values.actual_move_in_date ?? null,
       };
-      console.log("Submitting contract data:", contractData);
-      console.log("email", values.tenant_email);
 
-      await dispatch(createNewContract(contractData))
-        .unwrap()
-        .then((response) => {
-          formik.resetForm();
-          dispatch(
-            createContractTenant({
-              contract_id: response.contract_id ?? 0,
-              emailList: values.tenant_email,
-            })
-          ).unwrap();
-          toast.success("Contract created successfully!");
-          onClose();
-        })
-        .catch((error) => {
-          console.error("Failed to create contract:", error);
-        });
+      if (!contractData) {
+        await dispatch(createNewContract(contractSubmit))
+          .unwrap()
+          .then((response) => {
+            formik.resetForm();
+            dispatch(
+              createContractTenant({
+                contract_id: response.contract_id ?? 0,
+                emailList: values.tenant_email,
+              })
+            ).unwrap();
+            toast.success("Contract created successfully!");
+            onClose();
+          })
+          .catch((error) => {
+            console.error("Failed to create contract:", error);
+          });
+      } else {
+        const oldData = {
+          landlord_id: contractData.landlord_id,
+          property_id: contractData.property_id,
+          deposit: contractData.deposit,
+          rent: contractData.rent,
+          start_date: contractData.start_date,
+          end_date: contractData.end_date,
+          actual_move_in_date: contractData.actual_move_in_date,
+          status: contractData.status,
+          contract_file_url: contractData.contract_file_url,
+          terms_and_conditions: contractData.terms_and_conditions,
+        };
+
+        const newData = {
+          ...contractSubmit,
+          property_id: contractData.property_id,
+        };
+
+        const oldNormalized = normalizeContractData(oldData);
+        const newNormalized = normalizeContractData(newData);
+
+        const isOtherDataChanged =
+          JSON.stringify(oldNormalized) !== JSON.stringify(newNormalized);
+
+        const isEmailChanged =
+          JSON.stringify([...formik.values.tenant_email].sort()) !==
+          JSON.stringify([...oldEmailList].sort());
+
+        if (isOtherDataChanged) {
+          newData.contract_id = contractData.contract_id;
+          await dispatch(editContract(newData)).unwrap();
+        }
+
+        if (isEmailChanged) {
+          const newEmailList = formik.values.tenant_email;
+          const oldEmailSet = new Set(oldEmailList);
+          const newEmailSet = new Set(newEmailList);
+
+          const emailsToAdd = newEmailList.filter(
+            (email) => !oldEmailSet.has(email)
+          );
+
+          const emailsToRemove = oldEmailList.filter(
+            (email) => !newEmailSet.has(email)
+          );
+
+          if (emailsToAdd.length > 0) {
+            await dispatch(
+              createContractTenant({
+                contract_id: contractData.contract_id ?? 0,
+                emailList: emailsToAdd,
+              })
+            ).unwrap();
+          }
+
+          if (emailsToRemove.length > 0) {
+            await dispatch(
+              deleteContractTenant({
+                contract_id: contractData.contract_id ?? 0,
+                emailList: emailsToRemove,
+              })
+            ).unwrap();
+          }
+        }
+
+        toast.success("Edit successfully");
+        setStep(1);
+        onClose();
+      }
     },
   });
 
@@ -102,25 +194,25 @@ const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
       onOk={async () => {
         if (step === 1) {
           setStep(2);
-          // const errors = await formik.validateForm();
-          // if (Object.keys(errors).length === 0) {
-          //   setStep(2);
-          // } else {
-          //   formik.setTouched(
-          //     Object.keys(formik.values).reduce((acc, key) => {
-          //       acc[key] = true;
-          //       return acc;
-          //     }, {} as any)
-          //   );
-          // }
+          const errors = await formik.validateForm();
+          if (Object.keys(errors).length === 0) {
+            setStep(2);
+          } else {
+            formik.setTouched(
+              Object.keys(formik.values).reduce((acc, key) => {
+                acc[key] = true;
+                return acc;
+              }, {} as any)
+            );
+          }
         } else {
           formik.handleSubmit();
         }
       }}
       onCancel={async () => {
         if (step === 1) {
-          onClose()
-        }else{
+          onClose();
+        } else {
           setStep(1);
         }
       }}
@@ -155,6 +247,7 @@ const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
                   onChange={(value) =>
                     formik.setFieldValue("property_id", value)
                   }
+                  disabled={contractData != null}
                 >
                   {listProperties?.map((prop: PropertyType) => (
                     <Option key={prop.property_id} value={prop.property_id}>
@@ -226,7 +319,7 @@ const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
                   style={{ width: "100%" }}
                   value={
                     formik.values.start_date
-                      ? moment(formik.values.start_date)
+                      ? dayjs(formik.values.start_date)
                       : null
                   }
                   onChange={(date) =>
@@ -256,7 +349,7 @@ const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
                   style={{ width: "100%" }}
                   value={
                     formik.values.end_date
-                      ? moment(formik.values.end_date)
+                      ? dayjs(formik.values.end_date)
                       : null
                   }
                   onChange={(date) =>
@@ -290,7 +383,7 @@ const AddContractModal: React.FC<AddContractProps> = ({ isOpen, onClose }) => {
                   style={{ width: "100%" }}
                   value={
                     formik.values.actual_move_in_date
-                      ? moment(formik.values.actual_move_in_date)
+                      ? dayjs(formik.values.actual_move_in_date)
                       : null
                   }
                   onChange={(date) =>

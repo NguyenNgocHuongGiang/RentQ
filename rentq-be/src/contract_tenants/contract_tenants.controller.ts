@@ -21,6 +21,13 @@ export class ContractTenantsController {
   //   return this.contractTenantsService.findAll();
   // }
 
+  @Get('/get-by-contractId/:contractId')
+  @AutoApiResponse('GET')
+  getByContractId(@Param('contractId') contractId: string) {
+    return this.contractTenantsService.getByContractId(+contractId);
+  }
+
+
   @Get(':tenantId')
   @AutoApiResponse('GET')
   findOne(@Param('tenantId') tenantId: string) {
@@ -32,8 +39,9 @@ export class ContractTenantsController {
   //   return this.contractTenantsService.update(+id, updateContractTenantDto);
   // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.contractTenantsService.remove(+id);
-  // }
+  @Delete()
+  @AutoApiResponse('DELETE')
+  remove(@Body() deleteContractTenantDto: CreateContractTenantDto) {
+    return this.contractTenantsService.remove(deleteContractTenantDto);
+  }
 }
