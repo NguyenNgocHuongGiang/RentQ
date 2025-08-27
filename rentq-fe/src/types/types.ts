@@ -15,6 +15,7 @@ export type DefaultState = {
   searchPost?: SearchPost;
   listPropertyImages?: PropertyImage[];
   listContracts?: ContractType[];
+  listBills: BillType[]
 }>;
 
 export type SearchPost = {
@@ -148,3 +149,28 @@ export type ContractTenantRequest = {
   contract_id: number;
   emailList: string[];
 };
+
+export type BillType = {
+  bill_id?: number;
+  contract_id: number | null;
+  bill_date: Date | string | null;
+  due_date: Date | string | null;
+  total_amount: string;
+  status: "UNPAID" | "PAID" | "CANCELLED";
+  payment_date?: Date | string | null;
+  bill_items?: BillItemType[]
+};
+
+export type BillItemType = {
+    item_id?: number,
+    bill_id?: number,
+    item_type: 'RENT' | 'SERVICE' |'ELECTRIC' |'WATER' |'INTERNET' | 'OTHER',
+    description: string,
+    amount: string;
+    start_number : string;
+    end_number : string,
+    total_price :string,
+    note: string
+};
+
+

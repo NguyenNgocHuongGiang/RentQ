@@ -14,10 +14,11 @@ import { SavePostModule } from './save-post/save-post.module';
 import { MessageModule } from './message/message.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { ContractTenantsModule } from './contract_tenants/contract_tenants.module';
+import { BillsModule } from './bills/bills.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}),UserModule, AuthModule, FileUploadModule, RoleModule, ReviewsModule, PropertiesModule, PostsModule, PropertyImagesModule, SavePostModule, MessageModule, ContractsModule, ContractTenantsModule],
+  imports: [ConfigModule.forRoot({isGlobal: true}),UserModule, AuthModule, FileUploadModule, RoleModule, ReviewsModule, PropertiesModule, PostsModule, PropertyImagesModule, SavePostModule, MessageModule, ContractsModule, ContractTenantsModule, BillsModule],
   controllers: [AppController],
   providers: [AppService],
 })

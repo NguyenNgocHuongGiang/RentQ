@@ -27,9 +27,9 @@ const ContractsPage = () => {
   );
   const [searchText, setSearchText] = useState("");
 
-  useEffect(() => {
-    dispatch(getLandlordContracts(getAuthData()?.userId)).unwrap();
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getLandlordContracts(getAuthData()?.userId)).unwrap();
+  // }, []);
 
   const handleViewPDF = (contractId: number) => {
     const contract = listContracts.find(

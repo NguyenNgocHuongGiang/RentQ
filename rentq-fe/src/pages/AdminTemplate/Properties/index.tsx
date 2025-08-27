@@ -83,9 +83,9 @@ const Properties = () => {
     },
   ];
 
-  useEffect(() => {
-    dispatch(getUserProperties(getAuthData()?.userId)).unwrap();
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getUserProperties(getAuthData()?.userId)).unwrap();
+  // }, []);
 
   useEffect(() => {
     dispatch(getUserPost(getAuthData()?.userId)).unwrap();
