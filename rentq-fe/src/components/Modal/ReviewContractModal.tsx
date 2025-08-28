@@ -1,5 +1,5 @@
 import { Button, Input, Modal } from "antd";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import SignatureSection from "../../pages/AdminTemplate/Contracts/component/SignatureSection";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
@@ -7,7 +7,8 @@ import { createMessage } from "../../store/slice/messageSlice";
 import { getAuthData } from "../../utils/helpers";
 import { toast } from "react-toastify";
 import { ContractType } from "../../types/types";
-import PDFViewer from "../../pages/UserTemplate/ProfilePage/MyContracts/component/PDFReview";
+// import PDFViewer from "../../pages/UserTemplate/ProfilePage/MyContracts/component/PDFReview";
+import { editContract } from "../../store/slice/contractSlice";
 
 const ReviewContractModal = ({
   open,
@@ -23,10 +24,41 @@ const ReviewContractModal = ({
   );
   const [reason, setReason] = useState("");
   const dispatch = useDispatch<AppDispatch>();
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  // const [savedSignature, setSavedSignature] = useState<string>("");
 
   const handleAcceptedContract = async () => {
-    setAction("view");
+    if (!contract.contract_id) return;
+
+    const dataUpdate : ContractType = {
+      contract_id: contract.contract_id,
+      landlord_id: contract.landlord_id,
+      property_id: contract.property_id,
+      deposit: contract.deposit,
+      rent: contract.rent,
+      start_date: contract.start_date,
+      end_date: contract.end_date,
+      actual_move_in_date: contract.actual_move_in_date,
+      status: "active",
+      contract_file_url: contract.contract_file_url,
+      terms_and_conditions: contract.terms_and_conditions,
+    };
+
+    try {
+      await dispatch(
+        editContract(dataUpdate)
+      ).unwrap();
+
+      toast.success("Contract has been accepted and activated!");
+      onClose();
+    } catch (error: any) {
+      toast.error("Failed to update contract: " + error.message);
+    }
+  };
+
+  const handleSaveSignature = (signature: string) => {
+    if (signature) {
+      handleAcceptedContract();
+    }
   };
 
   const handleGiveReason = () => {
@@ -97,35 +129,8 @@ const ReviewContractModal = ({
             Upload your contract and sign below if you accept the contract
           </p>
           <div className="flex flex-col justify-center items-center gap-5">
-            <Input
-              type="file"
-              className="w-full"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setPdfFile(file);
-              }}
-            ></Input>
-
-            <SignatureSection />
-
-            <Button
-              type="primary"
-              className="mt-4 flex mx-auto"
-              onClick={() => {
-                handleAcceptedContract();
-              }}
-            >
-              View last version
-            </Button>
+            <SignatureSection onSave={handleSaveSignature} />
           </div>
-        </div>
-      ) : action === "view" ? (
-        <div className="flex flex-col px-10 py-2">
-          {pdfFile && (
-            <div className="mr-2">
-              <PDFViewer file={pdfFile} />
-            </div>
-          )}
         </div>
       ) : (
         <div className="flex flex-col px-10 py-2">

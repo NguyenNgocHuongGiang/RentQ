@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaHome, FaClock, FaPlus, FaTimesCircle } from "react-icons/fa";
+import { FaHome, FaClock, FaTimesCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "./../../../store";
 import { getAuthData } from "../../../utils/helpers";
@@ -7,11 +7,9 @@ import { createRoleRequest, getUserRole } from "../../../store/slice/userSlice";
 import { RoleRequest } from "../../../types/types";
 import { toast } from "react-toastify";
 import PolicyModal from "../../../components/Modal/PolicyModal";
-// import { getUserListings } from "../../../store/slice/postSlice";
 
 export default function RequestRole() {
   const { data } = useSelector((state: any) => state.userReducer);
-  // const { listings } = useSelector((state: any) => state.postReducer);
   const dispatch = useDispatch<AppDispatch>();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +42,6 @@ export default function RequestRole() {
 
   const fetchData = () => {
     dispatch(getUserRole(user.userId)).unwrap();
-    // dispatch(getUserListings(user.userId)).unwrap();
   };
 
   return (
@@ -88,7 +85,6 @@ export default function RequestRole() {
             </div>
           )}
 
-          {/* Modal policy*/}
           {isOpen && (
             <PolicyModal
               setIsOpen={setIsOpen}

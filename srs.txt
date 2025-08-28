@@ -1,0 +1,12 @@
+1. Mục đích cơ sở dữ liệu
++ Hệ thống này quản lý:
++ Người dùng (landlord, tenant, admin)
++ Bất động sản (properties)
++ Hợp đồng thuê (contracts)
++ Hóa đơn và thanh toán (bills, bill_items, payments)
++ Tin đăng cho thuê (posts, save_posts)
++ Yêu cầu chuyển phòng, tìm bạn ở ghép (room_transfer_requests, roommate_finder, roommate_requests)
++ Đánh giá và báo cáo (reviews, reports)
++ Thông báo và tin nhắn (notifications, messages)
++ Quản lý phân quyền và role requests
+

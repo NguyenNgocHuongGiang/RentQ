@@ -177,7 +177,7 @@ const SearchPage = () => {
                   })
                 );
               }}
-              showSizeChanger={false} // Không cho chọn pageSize
+              showSizeChanger={false} 
             />
           </div>
         ): (

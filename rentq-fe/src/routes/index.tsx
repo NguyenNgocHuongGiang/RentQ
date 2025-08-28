@@ -52,6 +52,12 @@ const routes: RouteConfig[] = [
               () => import("../pages/UserTemplate/ProfilePage/SavePosts")
             ),
           },
+          {
+            path: "bills",
+            element: lazy(
+              () => import("../pages/UserTemplate/ProfilePage/MyBills")
+            ),
+          },
         ],
       },
       {

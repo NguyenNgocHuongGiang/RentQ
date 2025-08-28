@@ -1,19 +1,26 @@
 import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
+interface SignatureSectionProps {
+  onSave?: (dataURL: string) => void;
+}
 
-const SignatureSection = () => {
+const SignatureSection = ({ onSave }: SignatureSectionProps) => {
   const sigPad = useRef<SignatureCanvas>(null);
   const [signature, setSignature] = useState<string>("");
 
   const clearSignature = () => {
     sigPad.current?.clear();
     setSignature("");
+    onSave?.("");
   };
 
   const saveSignature = () => {
     if (sigPad.current) {
-      setSignature(sigPad.current.getTrimmedCanvas().toDataURL("image/png"));
+      const canvas = sigPad.current.getCanvas();
+      const data = canvas.toDataURL("image/png");
+      setSignature(data);
+      onSave?.(signature);
     }
   };
 
@@ -32,15 +39,13 @@ const SignatureSection = () => {
         <button onClick={saveSignature} className="px-2 py-1 border">
           Lưu
         </button>
-        <button onClick={clearSignature} className="px-2 py-1 border cursor-pointer">
+        <button
+          onClick={clearSignature}
+          className="px-2 py-1 border cursor-pointer"
+        >
           Xóa
         </button>
       </div>
-      {signature && (
-        <div className="mt-2">
-          <img src={signature} alt={`Signature`} />
-        </div>
-      )}
     </div>
   );
 };

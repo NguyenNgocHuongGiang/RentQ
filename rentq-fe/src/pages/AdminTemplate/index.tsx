@@ -38,20 +38,20 @@ const menuItems = [
     icon: <ApartmentOutlined />,
     label: "Properties",
   },
-  {
-    key: "/manage/tenants",
-    icon: <TeamOutlined />,
-    label: "Tenants",
+    {
+    key: "/manage/contracts",
+    icon: <FileTextOutlined />,
+    label: "Contracts",
   },
   {
     key: "/manage/bills",
     icon: <DollarOutlined />,
     label: "Bills",
   },
-  {
-    key: "/manage/contracts",
-    icon: <FileTextOutlined />,
-    label: "Contracts",
+    {
+    key: "/manage/tenants",
+    icon: <TeamOutlined />,
+    label: "Tenants",
   },
   {
     key: "/manage/settings",

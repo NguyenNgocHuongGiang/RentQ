@@ -1,10 +1,13 @@
-import { Button, Input } from "antd";
+import { Button, Input, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import {
   PlusOutlined,
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
+  CheckCircleOutlined,
+  MinusCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../store";
@@ -124,7 +127,25 @@ const ContractsPage = () => {
                   className={`hover:bg-gray-50 ${rowClass}`}
                 >
                   <td className="px-4 py-3 border-b text-center">
-                    {index + 1}
+                    {contract.status === "active" ? (
+                      <Tooltip title="Active">
+                        <CheckCircleOutlined
+                          style={{ color: "green", fontSize: 18 }}
+                        />
+                      </Tooltip>
+                    ) : contract.status === "pending" ? (
+                      <Tooltip title="Pending">
+                        <MinusCircleOutlined
+                          style={{ color: "orange", fontSize: 18 }}
+                        />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Rejected">
+                        <CloseCircleOutlined
+                          style={{ color: "red", fontSize: 18 }}
+                        />
+                      </Tooltip>
+                    )}
                   </td>
                   <td className="px-4 py-3 border-b">
                     {contract.properties?.address}

@@ -52,7 +52,6 @@ export default function UserInformation() {
 
   return (
     <div className="flex flex-col items-center text-center w-full">
-      {/* Avatar + User Info */}
       <img
         src={user?.avatar_url}
         alt="Avatar"

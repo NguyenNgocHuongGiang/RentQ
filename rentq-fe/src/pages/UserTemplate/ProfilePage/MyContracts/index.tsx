@@ -5,10 +5,16 @@ import { getContractByTenantID } from "../../../../store/slice/contractSlice";
 import { checkLogin, getAuthData } from "../../../../utils/helpers";
 import { ContractType } from "../../../../types/types";
 import moment from "moment";
-import { EyeOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  EyeOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons";
 import { Button, DatePicker, Empty, Input, Tooltip } from "antd";
 import ReviewContractModal from "../../../../components/Modal/ReviewContractModal";
 import { useNavigate } from "react-router-dom";
+import { CanceledError } from "axios";
 const { Search } = Input;
 const MyContracts = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -67,10 +73,28 @@ const MyContracts = () => {
               </tr>
             </thead>
             <tbody>
-              {listContracts?.map((contract: ContractType, index: number) => (
+              {listContracts?.map((contract: ContractType) => (
                 <tr key={contract.contract_id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 border-b text-center">
-                    {index + 1}
+                    {contract.status === "active" ? (
+                      <Tooltip title="Active">
+                        <CheckCircleOutlined
+                          style={{ color: "green", fontSize: 18 }}
+                        />
+                      </Tooltip>
+                    ) : contract.status === "pending" ? (
+                      <Tooltip title="Pending">
+                        <MinusCircleOutlined
+                          style={{ color: "orange", fontSize: 18 }}
+                        />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Rejected">
+                        <CloseCircleOutlined
+                          style={{ color: "red", fontSize: 18 }}
+                        />
+                      </Tooltip>
+                    )}
                   </td>
                   <td className="px-4 py-3 border-b">
                     <Tooltip title={contract.properties?.address}>
@@ -109,7 +133,7 @@ const MyContracts = () => {
                             setIsReviewed(true);
                           }}
                         >
-                          Review
+                          Respond
                         </Button>
                       </Tooltip>
                     </div>
