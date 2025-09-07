@@ -9,7 +9,6 @@ import {
 } from "../../../store/slice/postSlice";
 import { FaAngleRight, FaMapMarkerAlt, FaTag } from "react-icons/fa";
 import Loading from "../../../components/Loading";
-import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
 import { getInfoUser } from "../../../store/slice/userSlice";
 import UtilitiesList from "./component/Utilities";
@@ -19,6 +18,9 @@ import { toast } from "react-toastify";
 import { getAuthData } from "../../../utils/helpers";
 import { createMessage } from "../../../store/slice/messageSlice";
 import { Dialog } from "@headlessui/react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const DetailPostPage = () => {
   const { alias } = useParams();
@@ -26,7 +28,7 @@ const DetailPostPage = () => {
     (state: RootState) => state.postReducer
   );
   const state = useSelector((state: RootState) => state.userReducer);
-  const inforHost = state?.data;
+  const inforHost = state?.data;  
 
   const dispatch = useDispatch<AppDispatch>();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -186,7 +188,7 @@ const DetailPostPage = () => {
           )}
         </div>
 
-        {isGalleryOpen && (
+                {isGalleryOpen && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center">
             <button
               className="absolute top-4 right-4 text-white text-2xl z-50"
@@ -194,12 +196,28 @@ const DetailPostPage = () => {
             >
               ×
             </button>
-            <ImageGallery
-              items={images}
-              showPlayButton={false}
-              showFullscreenButton={true}
-              onClose={() => setIsGalleryOpen(false)}
-            />
+
+            <div className="w-full max-w-4xl px-6">
+              <Slider
+                dots={true}
+                infinite={true}
+                speed={500}
+                slidesToShow={1}
+                slidesToScroll={1}
+                arrows={true}
+                adaptiveHeight={true}
+              >
+                {images.map((img: any, index: number) => (
+                  <div key={index} className="flex justify-center">
+                    <img
+                      src={img.original}
+                      alt={`Image ${index}`}
+                      className="max-h-[80vh] object-contain rounded-lg"
+                    />
+                  </div>
+                ))}
+              </Slider>
+            </div>
           </div>
         )}
 
@@ -315,9 +333,9 @@ const DetailPostPage = () => {
 
                   <button
                     className="cursor-pointer mt-5 px-4 py-2 bg-[#483507] text-white rounded-lg hover:bg-[#483507] hover:cursor-pointer"
-                    onClick={() => {}}
+                    onClick={() => {navigate(`/me/${inforHost?.user_id}`)}}
                   >
-                    Schedule an Appointment
+                    Xem trang cá nhân
                   </button>
                 </div>
               </div>

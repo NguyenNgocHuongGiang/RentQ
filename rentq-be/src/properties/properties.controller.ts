@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
@@ -22,9 +31,15 @@ export class PropertiesController {
     return this.propertiesService.findAll();
   }
 
+  @Get('tenant-properties/:userId')
+  @AutoApiResponse('GET')
+  getTenantProperties(@Param('userId') id: string) {
+    return this.propertiesService.getTenantProperties(+id);
+  }
+
   @Get('location')
   @AutoApiResponse('GET')
-  getPropertyLocation(){
+  getPropertyLocation() {
     return this.propertiesService.getPropertyLocation();
   }
 
@@ -36,7 +51,10 @@ export class PropertiesController {
 
   @Put(':propertyId')
   @AutoApiResponse('PUT')
-  update(@Param('propertyId') id: string, @Body() updatePropertyDto: UpdatePropertyDto) {
+  update(
+    @Param('propertyId') id: string,
+    @Body() updatePropertyDto: UpdatePropertyDto,
+  ) {
     return this.propertiesService.update(+id, updatePropertyDto);
   }
 

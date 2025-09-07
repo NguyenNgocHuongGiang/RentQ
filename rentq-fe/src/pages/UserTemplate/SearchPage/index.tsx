@@ -139,7 +139,7 @@ const SearchPage = () => {
           />
           <button
             onClick={handleSearch}
-            className="bg-[#483507] cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-[#796a49] text-sm flex items-center space-x-2"
+            className="bg-[#E07B39] cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-[#796a49] text-sm flex items-center space-x-2"
           >
             <FaSearch />
             <span>Tìm kiếm</span>

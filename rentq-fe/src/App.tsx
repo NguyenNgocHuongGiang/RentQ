@@ -5,6 +5,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { renderRoutes } from './routes/routes';
 import PageNotFound from './pages/PageNotFound';
 import Loading from './components/Loading';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 function App() {
   return (

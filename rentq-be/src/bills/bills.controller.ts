@@ -32,6 +32,12 @@ export class BillsController {
     return this.billsService.findAllByLandlord(+id, yearNumber);
   }
 
+  @Get('/get-by-tenantId/:id')
+  @AutoApiResponse('GET')
+  findAllByTenantId(@Param('id') id: string) {
+    return this.billsService.getAllByTenant(+id);
+  }
+
   @Delete(':id')
   @AutoApiResponse('DELETE')
   remove(@Param('id') id: string) {

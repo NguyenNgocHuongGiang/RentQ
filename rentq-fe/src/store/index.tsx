@@ -6,6 +6,7 @@ import propertyReducer from "./slice/propertySlice";
 import messageReducer from "./slice/messageSlice";
 import constractReducer from "./slice/contractSlice";
 import billReducer from "./slice/billSlice";
+import roomFinderReducer from "./slice/roomFinderSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     propertyReducer,
     messageReducer,
     constractReducer,
-    billReducer
+    billReducer,
+    roomFinderReducer
   },
 });
 

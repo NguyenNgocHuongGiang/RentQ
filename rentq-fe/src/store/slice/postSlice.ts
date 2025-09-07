@@ -159,17 +159,25 @@ export const getReviewProperties = createAsyncThunk<ReviewProperty[], number>(
   }
 );
 
-export const getPopularListings = createAsyncThunk<ActivePostType[]>(
+export const getPopularListings = createAsyncThunk<
+  any, 
+  { page: number; limit?: number }
+>(
   "posts/getPopularListings",
-  async (_, { rejectWithValue }) => {
+  async ({ page, limit }, { rejectWithValue }) => {
     try {
-      const response = await api.get("posts/active");
-      return response.data.content;
+      const response = await api.get("posts/active", {
+        params: { page, limit }, // truyền query params
+      });
+      return response.data.content; // tuỳ backend, có thể là response.data.data
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
+      return rejectWithValue(
+        error.response?.data || "Lấy thông tin thất bại!"
+      );
     }
   }
 );
+
 
 export const getUserPost = createAsyncThunk<any, number>(
   "posts/getUserPost",
@@ -311,7 +319,7 @@ const postSlice = createSlice({
       })
       .addCase(getPopularListings.fulfilled, (state, action) => {
         state.loading = false;
-        state.posts = action.payload;
+        state.posts = action.payload.posts;
       })
       .addCase(getPopularListings.rejected, (state, action) => {
         state.loading = false;

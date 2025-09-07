@@ -23,32 +23,48 @@ export class PostsService {
     });
   }
 
-  async findActivePosts() {
-    return await this.prisma.posts.findMany({
-      where: {
-        status: 'active',
-        is_approved: true,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-      take: 8,
-      select: {
-        post_id: true,
-        price: true,
-        alias: true,
-        properties: {
-          select: {
-            max_people: true,
-            address: true,
-            area: true,
-            property_images: true,
+  async findActivePosts(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [posts, total] = await this.prisma.$transaction([
+      this.prisma.posts.findMany({
+        where: {
+          status: 'active',
+          is_approved: true,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+        skip,
+        take: limit,
+        select: {
+          post_id: true,
+          price: true,
+          alias: true,
+          description: true,
+          properties: {
+            select: {
+              max_people: true,
+              address: true,
+              area: true,
+              property_images: true,
+            },
           },
         },
-      },
-    });
+      }),
+      this.prisma.posts.count({
+        where: {
+          status: 'active',
+          is_approved: true,
+        },
+      }),
+    ]);
+
+    return {
+      posts,
+      total,
+    };
   }
-  
 
   async findDetailPosts(alias: string) {
     return this.prisma.posts.findFirst({
@@ -65,32 +81,37 @@ export class PostsService {
     });
   }
 
-  async findPostByLocation(location: string, available: string, page: number, size: number) {
+  async findPostByLocation(
+    location: string,
+    available: string,
+    page: number,
+    size: number,
+  ) {
     let availableDay: Date | null = null;
     let endDate: Date | null = null;
-  
+
     if (available && available !== 'noDate') {
       availableDay = new Date(available);
       endDate = new Date(availableDay);
       endDate.setDate(availableDay.getDate() + 2);
     }
-  
+
     const whereConditions: any = {
       properties: {},
     };
-  
+
     if (location && location !== 'noLocation') {
       whereConditions.properties.address = {
         contains: location,
       };
     }
-  
+
     if (availableDay && endDate) {
       whereConditions.properties.available_from = {
         lte: endDate,
       };
     }
-  
+
     const posts = await this.prisma.posts.findMany({
       where: whereConditions,
       include: {
@@ -100,20 +121,20 @@ export class PostsService {
           },
         },
       },
-      skip: (page - 1) * size,  
-      take: size,             
+      skip: (page - 1) * size,
+      take: size,
     });
-  
+
     const total = await this.prisma.posts.count({
       where: whereConditions,
     });
-  
+
     return {
       posts,
       total,
     };
   }
-  
+
   // async findAll() {
   //   return `This action returns all posts`;
   // }

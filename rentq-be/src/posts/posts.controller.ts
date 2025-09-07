@@ -25,8 +25,11 @@ export class PostsController {
 
   @Get('active')
   @AutoApiResponse('GET')
-  findActivePosts() {
-    return this.postsService.findActivePosts();
+  findActivePosts(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 12,
+  ) {
+    return this.postsService.findActivePosts(+page, +limit);
   }
 
   @Get('/detail-post/:alias')
@@ -49,12 +52,17 @@ export class PostsController {
   @Get(':location/:available')
   @AutoApiResponse('GET')
   async findPosts(
-    @Param('location') location: string = '',  
-    @Param('available') available: string = '',  
-    @Query('page') page: number = 1,         
-    @Query('size') size: number = 5           
+    @Param('location') location: string = '',
+    @Param('available') available: string = '',
+    @Query('page') page: number = 1,
+    @Query('size') size: number = 5,
   ) {
-    return this.postsService.findPostByLocation(location, available, +page, +size);
+    return this.postsService.findPostByLocation(
+      location,
+      available,
+      +page,
+      +size,
+    );
   }
 
   // @Patch(':id')

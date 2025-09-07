@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getAuthData } from "../../utils/helpers";
-import {
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-  Transition,
-} from "@headlessui/react";
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from "@headlessui/react";
 import { getInfoUser } from "../../store/slice/userSlice";
 import { AppDispatch } from "../../store";
 import { useDispatch } from "react-redux";
-import { FaBell, FaFacebookMessenger, FaInbox, FaInfo, FaRing } from "react-icons/fa";
+import { FaBell, FaFacebookMessenger } from "react-icons/fa";
 
 export default function Header() {
   const location = useLocation();
@@ -19,15 +13,11 @@ export default function Header() {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [role, setRole] = useState("");
   const dispatch = useDispatch<AppDispatch>();
+  const userData = getAuthData();  
 
   useEffect(() => {
-    const userData = getAuthData();
-    if (userData?.avatar) {
-      setAvatarUrl(userData.avatar);
-    }
-    if (userData?.userRole) {
-      setRole(userData.userRole);
-    }
+    if (userData?.avatar) setAvatarUrl(userData.avatar);
+    if (userData?.userRole) setRole(userData.userRole);
   }, [location]);
 
   useEffect(() => {
@@ -45,13 +35,9 @@ export default function Header() {
         .unwrap()
         .then((serverUser) => {
           const localUser = getAuthData();
-          if (serverUser?.role !== localUser?.userRole) {
-            handleLogout();
-          }
+          if (serverUser?.role !== localUser?.userRole) handleLogout();
         })
-        .catch((error) => {
-          console.error("Failed to check role", error);
-        });
+        .catch((error) => console.error("Failed to check role", error));
     } catch (error) {
       console.error("Failed to check role", error);
     }
@@ -63,13 +49,10 @@ export default function Header() {
   };
 
   return (
-    <nav className="bg-[#c2bdb5] sticky w-full z-20 top-0 start-0">
+    <nav className="bg-[#F0F2F5] sticky w-full z-20 top-0 start-0 shadow-md">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <Link
-          to="/"
-          className="flex items-center space-x-3 rtl:space-x-reverse"
-        >
-          <span className="self-center text-2xl font-semibold whitespace-nowrap text-[#483507]">
+        <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+          <span className="self-center text-2xl font-bold whitespace-nowrap text-[#0A2E50]">
             RentQ
           </span>
         </Link>
@@ -77,10 +60,13 @@ export default function Header() {
         <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           {avatarUrl ? (
             <div className="relative flex items-center gap-3">
-              <div onClick={() => navigate("/message")} className="text-[#483507] hover:text-white bg-transparent hover:bg-[#483507] focus:ring-4 focus:outline-none focus:ring-[#483507] font-medium rounded-full text-sm px-1.5 py-1.5 text-center border-[#483507] border-2 hover:cursor-pointer transition duration-300 transform hover:scale-105">
+              <div
+                onClick={() => navigate("/message")}
+                className="text-[#0A2E50] hover:text-[#E07B39] transition-colors duration-300 hover:cursor-pointer"
+              >
                 <FaFacebookMessenger size={22} />
               </div>
-              <div className="text-[#483507] hover:text-white bg-transparent hover:bg-[#483507] focus:ring-4 focus:outline-none focus:ring-[#483507] font-medium rounded-full text-sm px-1.5 py-1.5 text-center border-[#483507] border-2 hover:cursor-pointer transition duration-300 transform hover:scale-105">
+              <div className="text-[#0A2E50] hover:text-[#E07B39] transition-colors duration-300 hover:cursor-pointer">
                 <FaBell size={22} />
               </div>
               <Menu as="div" className="relative inline-block text-left">
@@ -88,10 +74,9 @@ export default function Header() {
                   <img
                     src={avatarUrl}
                     alt="Avatar"
-                    className="w-10 h-10 rounded-full hover:cursor-pointer"
+                    className="w-10 h-10 rounded-full hover:cursor-pointer transition transform hover:scale-105"
                   />
                 </MenuButton>
-
                 <Transition
                   enter="transition ease-out duration-100"
                   enterFrom="transform scale-95 opacity-0"
@@ -100,21 +85,31 @@ export default function Header() {
                   leaveFrom="transform scale-100 opacity-100"
                   leaveTo="transform scale-95 opacity-0"
                 >
-                  <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                  <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-200 rounded-md bg-[#FFFFFF] shadow-lg ring-1 ring-black/10 focus:outline-none">
                     <div className="py-1">
-                      <Link to="/me">
+                      <Link to={`/me/${userData?.userId}`}>
                         <MenuItem
                           as="button"
-                          className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block w-full text-left px-4 py-2 text-sm text-[#0A2E50] hover:bg-[#E07B39] hover:text-white transition-colors duration-200"
                         >
-                          Profile
+                          Trang cá nhân
                         </MenuItem>
                       </Link>
+
+                      <Link to="/me/user-information">
+                        <MenuItem
+                          as="button"
+                          className="block w-full text-left px-4 py-2 text-sm text-[#0A2E50] hover:bg-[#E07B39] hover:text-white transition-colors duration-200"
+                        >
+                          Quản lý tài khoản
+                        </MenuItem>
+                      </Link>
+
                       {role === "landlord" ? (
                         <Link to="/manage/dashboard">
                           <MenuItem
                             as="button"
-                            className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            className="block w-full text-left px-4 py-2 text-sm text-[#0A2E50] hover:bg-[#E07B39] hover:text-white transition-colors duration-200"
                           >
                             Dashboard
                           </MenuItem>
@@ -123,26 +118,26 @@ export default function Header() {
                         <Link to="/request-role">
                           <MenuItem
                             as="button"
-                            className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            className="block w-full text-left px-4 py-2 text-sm text-[#0A2E50] hover:bg-[#E07B39] hover:text-white transition-colors duration-200"
                           >
                             Request Landlord
                           </MenuItem>
                         </Link>
                       ) : null}
-                      <Link to="/settings">
+                      {/* <Link to="/settings">
                         <MenuItem
                           as="button"
-                          className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block w-full text-left px-4 py-2 text-sm text-[#0A2E50] hover:bg-[#E07B39] hover:text-white transition-colors duration-200"
                         >
                           Settings
                         </MenuItem>
-                      </Link>
+                      </Link> */}
                     </div>
                     <div className="py-1">
                       <MenuItem
                         as="button"
                         onClick={handleLogout}
-                        className="hover:cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-[#0A2E50] hover:bg-[#E07B39] hover:text-white transition-colors duration-200"
                       >
                         Logout
                       </MenuItem>
@@ -155,14 +150,14 @@ export default function Header() {
             <>
               <button
                 type="button"
-                className="mr-5 text-[#483507] hover:text-white bg-transparent hover:bg-[#483507] focus:ring-4 focus:outline-none focus:ring-[#483507] font-medium rounded-lg text-sm px-4 py-2 text-center border-[#483507] border-2 hover:cursor-pointer transition duration-300 transform hover:scale-105"
+                className="text-[#0A2E50] bg-[#FFFFFF] border-2 border-[#E07B39] hover:bg-[#E07B39] hover:text-white transition-colors duration-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center"
                 onClick={() => navigate("/auth/login")}
               >
                 Login
               </button>
               <button
                 type="button"
-                className="text-white bg-[#483507] hover:bg-transparent focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 text-center border-[#483507] border-2 hover:text-[#483507] hover:cursor-pointer transition duration-300 transform hover:scale-105"
+                className="ml-3 text-white bg-[#E07B39] hover:bg-[#FFFFFF] hover:text-[#0A2E50] border-2 border-[#E07B39] transition-colors duration-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center"
                 onClick={() => navigate("/auth/register")}
               >
                 Sign up
@@ -172,21 +167,18 @@ export default function Header() {
         </div>
 
         <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-          <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-[#c2bdb5]">
-            {["/", "/discovery", "/services", "/contact"].map((path, index) => {
-              const labels = ["Home", "Discovery", "Services", "Contact"];
+          <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium rounded-lg md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-[#F0F2F5]">
+            {["/", "/tim-tro", "/cho-thue", "/o-ghep", "/lien-he"].map((path, index) => {
+              const labels = ["Trang chủ", "Tìm trọ", "Cho thuê", "Ở ghép", "Liên hệ"];
               return (
                 <li key={path}>
                   <Link
                     to={path}
-                    className={`block py-2 px-3 rounded-sm md:p-0 transition duration-300 transform hover:scale-105 ${
-                      location.pathname === path
-                        ? "text-[#483507] font-bold"
-                        : "text-white hover:bg-gray-100 md:hover:bg-transparent md:hover:text-[#483507]"
-                    }`}
-                    aria-current={
-                      location.pathname === path ? "page" : undefined
-                    }
+                    className={`block py-2 px-3 rounded-sm md:p-0 transition-colors duration-300 ${location.pathname === path
+                        ? "text-[#E07B39] font-semibold"
+                        : "text-[#0A2E50] hover:text-[#E07B39]"
+                      }`}
+                    aria-current={location.pathname === path ? "page" : undefined}
                   >
                     {labels[index]}
                   </Link>
@@ -197,5 +189,6 @@ export default function Header() {
         </div>
       </div>
     </nav>
+
   );
 }

@@ -30,7 +30,7 @@ export default function RentHouse() {
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]); // Danh sách địa điểm lọc
 
   useEffect(() => {
-    dispatch(getPopularListings()).unwrap();
+    dispatch(getPopularListings({ page: 1, limit: 4})).unwrap();
     dispatch(getSavePost(getAuthData()?.userId)).unwrap();
     dispatch(getLocation()).unwrap();
   }, [dispatch]);
@@ -66,7 +66,9 @@ export default function RentHouse() {
   };
 
   return (
-    <div className="container mx-auto p-4 lg:mb-20 md:mb-10" style={{ maxWidth: "1200px" }}>
+    <div
+      className="max-w-7xl mx-auto lg:mb-16 mb-8"
+    >
       {/* Search Bar */}
       <div className="bg-white shadow-md rounded-full px-4 py-4 flex flex-wrap items-center gap-4 max-w-4xl mx-auto my-8 border border-gray-300">
         <div className="relative flex-1">
@@ -102,7 +104,7 @@ export default function RentHouse() {
 
         <button
           onClick={handleSearch}
-          className="bg-[#483507] cursor-pointer text-white px-4 py-2 rounded-full hover:bg-[#796a49] text-sm flex items-center space-x-2"
+          className="bg-[#E07B39] cursor-pointer text-white px-4 py-2 rounded-full hover:bg-[#796a49] text-sm flex items-center space-x-2"
         >
           <FaSearch />
           <span>Tìm kiếm</span>
@@ -110,15 +112,15 @@ export default function RentHouse() {
       </div>
 
       {/* Post list */}
-      <div className="flex justify-between items-center mb-8 mt-5 text-[#483507]">
-        <h2 className="text-3xl font-bold">New posts</h2>
+      <div className="flex justify-between items-center mb-8 mt-10 text-[#0A2E50]">
+        <h2 className="text-3xl font-bold">Bài viết cho thuê mới</h2>
         <p
-  className="group flex items-center gap-1 text-[#483507] cursor-pointer transition duration-300"
-  onClick={() => navigate("/discovery")}
->
-  <span className="group-hover:underline">View more</span>
-  <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
-</p>
+          className="group flex items-center gap-1 text-[#0A2E50] cursor-pointer transition duration-300"
+          onClick={() => navigate("/cho-thue")}
+        >
+          <span className="group-hover:underline">Xem thêm</span>
+          <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+        </p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6 gap-4">
         {posts?.map((item: ActivePostType) => (

@@ -47,64 +47,62 @@ const PostCard: React.FC<PostCardProps> = ({ post, savedPosts }) => {
   return (
     <div
       onClick={() => navigate(`/detailpost/${post.alias}`)}
-      className="hover:scale-105 transition-transform duration-200 bg-white shadow-lg rounded-lg overflow-hidden p-4 hover:cursor-pointer"
+      className="relative group bg-[#F0F2F5] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
     >
       <div className="relative">
         {mainImage ? (
           <img
             src={mainImage.image_url}
             alt={post.alias}
-            className="w-full h-30 lg:h-40 object-cover rounded-md mb-4"
+            className="w-full h-44 lg:h-52 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-30 lg:h-40 bg-gray-300 flex items-center justify-center text-gray-600 rounded-md mb-4">
+          <div className="w-full h-44 lg:h-52 bg-gray-300 flex items-center justify-center text-gray-600 rounded-t-2xl">
             No Image
           </div>
         )}
 
         <div
           onClick={(e) => handleFavoriteClick(e, post.post_id)}
-          className="absolute top-2 right-2 bg-white rounded-full p-2 shadow cursor-pointer"
+          className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:scale-110 transition-transform duration-200"
         >
           {isFavorite ? (
-            <FaHeart size={20} className="text-red-500" />
+            <FaHeart size={20} className="text-[#E07B39]" />
           ) : (
-            <FaRegHeart size={20} className="text-red-500" />
+            <FaRegHeart size={20} className="text-gray-400" />
           )}
         </div>
       </div>
 
-      <div className="text-md text-left font-semibold mb-2 flex items-center">
-        <FaMapMarkerAlt className="mr-2 text-red-500 text-md" />
-        <p className="flex-3/5">
-          {post?.properties?.address.length > 50
-            ? post?.properties?.address.slice(0, 30) + "..."
-            : post?.properties?.address}
-        </p>
-      </div>
+      {/* Content */}
+      <div className="p-4 flex flex-col gap-2">
+        {/* Address */}
+        <div className="flex items-center gap-2 text-[#0A2E50] font-semibold">
+          <FaMapMarkerAlt className="text-[#E07B39]" />
+          <p className="truncate">
+            {post?.properties?.address.length > 50
+              ? post?.properties?.address.slice(0, 40) + "..."
+              : post?.properties?.address}
+          </p>
+        </div>
 
-      <div className="flex justify-between">
-        <div>
-          <div className="flex flex-row space-x-2 text-gray-500 text-sm mb-2">
-            <div>
-              <span className="text-gray-500 text-sm">Area: </span>
-              <span className="text-md font-semibold">
-                {post?.properties?.area} m²
-              </span>
-            </div>
-            <div>|</div>
-            <div>
-              <span className="text-gray-500 text-sm">Max people: </span>
-              <span className="text-md font-semibold">
-                {post?.properties?.max_people}
-              </span>
-            </div>
+        {/* Details */}
+        <div className="text-gray-600 text-sm">
+          <div className="text-lg font-bold text-green-600">
+            {post?.price} VND/month
           </div>
-          <div className="text-gray-600 text-left text-md">
-            <span className="text-xl text-green-600 font-bold">
-              {post?.price}
+          <div className="flex gap-3  mt-2">
+            <span>
+              Area:{" "}
+              <span className="font-semibold">{post?.properties?.area} m²</span>
             </span>
-            <span> VND/month</span>
+            <span>|</span>
+            <span>
+              Max:{" "}
+              <span className="font-semibold">
+                {post?.properties?.max_people} people
+              </span>
+            </span>
           </div>
         </div>
       </div>

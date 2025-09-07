@@ -104,7 +104,7 @@ export default function ViewBillDetailModal({
         backgroundColor: "#ffffff",
         foreignObjectRendering: true,
       },
-      jsPDF: { unit: "in", format: [18, 8], orientation: "landscape" }
+      jsPDF: { unit: "in", format: [18, 8], orientation: "landscape" },
     };
 
     html2pdf().set(opt).from(element).save();
@@ -125,6 +125,7 @@ export default function ViewBillDetailModal({
           key="download"
           type="primary"
           icon={<DownloadOutlined />}
+          className="!text-white !bg-[#0A2E50] rounded-lg font-medium h-9 px-4 shadow !hover:text-[#0A2E50] !hover:bg-white transition-all duration-200"
           onClick={handleDownload}
         >
           Tải xuống
@@ -132,14 +133,19 @@ export default function ViewBillDetailModal({
       ]}
     >
       <div className="bill-preview">
-
         <div style={{ textAlign: "center" }} className="mb-6">
           <div className="font-bold text-2xl my-2 uppercase">
             Chi tiết hóa đơn
           </div>
-          <div className="font-semibold text-lg mb-5">Tháng 08/2025</div>
+          <div className="font-semibold text-lg mb-5">
+            {bill.due_date
+              ? `Tháng ${new Date(bill.due_date).toLocaleDateString("ES", {
+                  month: "2-digit",
+                  year: "numeric",
+                })}`
+              : "Chưa có ngày"}
+          </div>
         </div>
-
 
         <Descriptions bordered column={2} size="middle">
           <Descriptions.Item label="Mã hóa đơn">
@@ -165,7 +171,6 @@ export default function ViewBillDetailModal({
             )}
           </Descriptions.Item>
         </Descriptions>
-
 
         <div className="mt-6">
           <h3 className="font-semibold mb-2">Chi tiết các khoản phí</h3>

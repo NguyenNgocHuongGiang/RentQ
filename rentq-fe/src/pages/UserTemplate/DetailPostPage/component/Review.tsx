@@ -167,7 +167,7 @@ const Review = () => {
 
           <div className="space-y-4 my-6 grid lg:grid-cols-2 md:grid-cols-1 gap-x-20">
             {paginatedReviews?.map((review: any) => {
-              const isOwnComment = review?.users?.user_id === authUser.userId;
+              const isOwnComment = review?.users?.user_id === authUser?.userId;
               const isExpanded = expandedReviews.includes(review.review_id);
               const shortComment =
                 review?.comment.length > 97

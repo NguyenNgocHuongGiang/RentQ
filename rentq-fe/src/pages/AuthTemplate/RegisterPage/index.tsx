@@ -1,16 +1,19 @@
-import { FaFacebookF, FaGoogle } from "react-icons/fa";
+import { FaFacebookF, FaGoogle, FaUser, FaEnvelope, FaLock, FaPhone, FaMapMarkerAlt, FaEye, FaEyeSlash, FaUserPlus } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../../store";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { registerUser } from "../slice";
 
 export default function RegisterPage() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -23,19 +26,20 @@ export default function RegisterPage() {
       role: "tenant",
     },
     validationSchema: Yup.object({
-      full_name: Yup.string().required("Full name is required"),
-      email: Yup.string().email("Invalid email").required("Email is required"),
-      password: Yup.string().required("Password is required"),
+      full_name: Yup.string().required("Họ tên không được để trống"),
+      email: Yup.string().email("Email không hợp lệ").required("Email không được để trống"),
+      password: Yup.string()
+        .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
+        .required("Mật khẩu không được để trống"),
       confirm_password: Yup.string()
-        .oneOf([Yup.ref("password")], "Passwords must match")
-        .required("Confirm Password is required"),
+        .oneOf([Yup.ref("password")], "Mật khẩu xác nhận không khớp")
+        .required("Xác nhận mật khẩu không được để trống"),
       phone: Yup.string()
-        .matches(/^[0-9]{10}$/, "Phone must be exactly 10 digits")
-        .required("Phone is required"),
-      address: Yup.string().required("Address is required"),
+        .matches(/^[0-9]{10}$/, "Số điện thoại phải có đúng 10 chữ số")
+        .required("Số điện thoại không được để trống"),
+      address: Yup.string().required("Địa chỉ không được để trống"),
     }),
     enableReinitialize: true,
-    // validateOnChange: true,
     onSubmit: async (values) => {
       const newUser = {
         full_name: values.full_name,
@@ -47,13 +51,16 @@ export default function RegisterPage() {
         is_verified: false,
       };
 
+      setLoading(true);
       try {
         await dispatch(registerUser(newUser)).unwrap();
-        toast.success("Đăng ký thành công");
+        toast.success("Đăng ký thành công! 🎉");
         toast.success("Vui lòng kiểm tra email để kích hoạt tài khoản.");
         navigate("/auth/login");
       } catch (error: any) {
-        toast.error(error.message);
+        toast.error(error.message || "Đăng ký thất bại! ❌");
+      } finally {
+        setLoading(false);
       }
     },
   });
@@ -67,118 +74,207 @@ export default function RegisterPage() {
   }, [formik.errors, formik.touched]);
 
   return (
-    <div className="relative bg-white bg-opacity-10 backdrop-blur-2xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl px-6 py-10 rounded-lg shadow-lg z-10 mx-auto">
-      <div className="flex flex-col justify-center">
-        <h2 className="text-center text-3xl sm:text-4xl font-bold tracking-tight text-[#483507]">
-          Sign Up
-        </h2>
+    <div className="relative w-full max-w-2xl mx-auto px-4">
+      {/* Glass Card */}
+      <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-8 transform transition-all duration-500 hover:bg-white/25">
 
-        <div className="mt-8">
-          <form className="space-y-6" onSubmit={formik.handleSubmit}>
-            <div className="flex flex-wrap gap-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Tạo tài khoản mới
+          </h1>
+          <p className="text-white/70 text-base">
+            Tham gia cộng đồng và khám phá những cơ hội tuyệt vời
+          </p>
+        </div>
+
+        {/* Registration Form */}
+        <form onSubmit={formik.handleSubmit} className="space-y-6">
+          {/* Row 1: Full Name & Email */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <FaUser className="h-5 w-5 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              </div>
               <input
                 onChange={formik.handleChange}
                 value={formik.values.full_name}
                 type="text"
                 name="full_name"
                 id="full_name"
-                placeholder="Full Name"
+                placeholder="Họ và tên"
                 required
-                className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
+                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-300 hover:bg-white/15"
               />
+            </div>
+
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <FaEnvelope className="h-5 w-5 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              </div>
               <input
                 onChange={formik.handleChange}
                 value={formik.values.email}
                 type="email"
                 name="email"
                 id="email"
-                placeholder="Email"
+                placeholder="Địa chỉ email"
                 required
-                className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
+                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-300 hover:bg-white/15"
               />
             </div>
+          </div>
 
-            <div className="flex flex-wrap gap-4">
+          {/* Row 2: Password & Confirm Password */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <FaLock className="h-5 w-5 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              </div>
               <input
                 onChange={formik.handleChange}
                 value={formik.values.password}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 id="password"
-                placeholder="Password"
+                placeholder="Mật khẩu"
                 required
-                className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
+                className="w-full pl-12 pr-12 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-300 hover:bg-white/15"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
+              >
+                {showPassword ? (
+                  <FaEyeSlash className="h-5 w-5 text-white/60 hover:text-white/80 transition-colors" />
+                ) : (
+                  <FaEye className="h-5 w-5 text-white/60 hover:text-white/80 transition-colors" />
+                )}
+              </button>
+            </div>
+
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <FaLock className="h-5 w-5 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              </div>
               <input
                 onChange={formik.handleChange}
                 value={formik.values.confirm_password}
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 name="confirm_password"
                 id="confirm_password"
-                placeholder="Confirm Password"
+                placeholder="Xác nhận mật khẩu"
                 required
-                className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
+                className="w-full pl-12 pr-12 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-300 hover:bg-white/15"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
+              >
+                {showConfirmPassword ? (
+                  <FaEyeSlash className="h-5 w-5 text-white/60 hover:text-white/80 transition-colors" />
+                ) : (
+                  <FaEye className="h-5 w-5 text-white/60 hover:text-white/80 transition-colors" />
+                )}
+              </button>
             </div>
+          </div>
 
-            <div className="flex flex-wrap gap-4">
+          {/* Row 3: Phone & Address */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <FaPhone className="h-5 w-5 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              </div>
               <input
                 onChange={formik.handleChange}
                 value={formik.values.phone}
                 type="tel"
                 name="phone"
                 id="phone"
-                placeholder="Phone Number"
+                placeholder="Số điện thoại"
                 required
-                className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
+                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-300 hover:bg-white/15"
               />
+            </div>
+
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                <FaMapMarkerAlt className="h-5 w-5 text-white/60 group-focus-within:text-white/80 transition-colors" />
+              </div>
               <input
                 onChange={formik.handleChange}
                 value={formik.values.address}
                 type="text"
                 name="address"
                 id="address"
-                placeholder="Address"
+                placeholder="Địa chỉ"
                 required
-                className="w-full sm:flex-1 rounded-md py-2.5 px-4 text-base text-[#483507] border border-gray-300 placeholder:text-gray-400 focus:border-[#483507] sm:text-sm"
+                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-300 hover:bg-white/15"
               />
             </div>
-
-            <button
-              type="submit"
-              className="hover:cursor-pointer w-full rounded-md bg-[#483507] px-4 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#8d702d] focus:outline-none focus:ring-2 focus:ring-[#8d702d]"
-            >
-              Sign Up
-            </button>
-          </form>
-
-          <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-gray-300"></div>
-            <p className="mx-3 text-gray-500 text-sm">Or</p>
-            <div className="flex-1 h-px bg-gray-300"></div>
           </div>
 
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-            <button className="flex-1 flex items-center justify-center bg-red-500 text-white py-2 rounded-md font-medium hover:bg-red-600 transition duration-300">
-              <FaGoogle className="mr-2" /> Google
-            </button>
-            <button className="flex-1 flex items-center justify-center bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition duration-300">
-              <FaFacebookF className="mr-2" /> Facebook
-            </button>
-          </div>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
-            Already have an account?{" "}
+          {/* Register Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="cursor-pointer w-full bg-[#0A2E50] hover:bg-[#E07B39] disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Đang tạo tài khoản...
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <FaUserPlus className="mr-2" />
+                Tạo tài khoản
+              </div>
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="relative my-8">
+
+          <div className="w-full border-t border-white/30"></div>
+
+        </div>
+
+        {/* Social Registration Buttons */}
+        <div className="grid grid-cols-2 gap-4">
+          <button className="flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0">
+            <FaGoogle className="mr-2 text-lg" />
+            <span className="hidden sm:inline">Google</span>
+          </button>
+          <button className="flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0">
+            <FaFacebookF className="mr-2 text-lg" />
+            <span className="hidden sm:inline">Facebook</span>
+          </button>
+        </div>
+
+        {/* Login Link */}
+        <div className="mt-8 text-center">
+          <p className="text-white/70">
+            Đã có tài khoản?{" "}
             <Link
               to="/auth/login"
-              className="font-semibold text-[#8d702d] hover:text-[#483507]"
+              className="text-white font-semibold hover:text-white/80 transition-colors duration-200 hover:underline"
             >
-              Login
-            </Link>{" "}
-            now
+              Đăng nhập ngay
+            </Link>
           </p>
         </div>
       </div>
+
+      {/* Floating Particles */}
+      <div className="absolute top-1/2 -left-5 w-12 h-12 bg-green-400/10 rounded-full blur-md animate-pulse"></div>
+      <div className="absolute bottom-1/4 -right-8 w-14 h-14 bg-teal-400/10 rounded-full blur-lg animate-pulse delay-1000"></div>
     </div>
   );
 }

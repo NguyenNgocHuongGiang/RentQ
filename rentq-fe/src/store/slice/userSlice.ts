@@ -1,6 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../utils/configApi";
-import { DefaultState, RoleRequest, RoleRequestType } from "../../types/types";
+import {
+  BankAccountType,
+  DefaultState,
+  RoleRequest,
+  RoleRequestType,
+} from "../../types/types";
 
 export const getInfoUser = createAsyncThunk<any, number>(
   "user/getInfo",
@@ -52,13 +57,47 @@ export const getUserRole = createAsyncThunk<any, number>(
   }
 );
 
+export const createBankAccount = createAsyncThunk<
+  BankAccountType,
+  BankAccountType
+>("user/createBankAccount", async (credentials, { rejectWithValue }) => {
+  try {
+    const response = await api.post(`users/create-bank-account`, credentials);
+    return response.data.content;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || "Send request failed!");
+  }
+});
 
+export const getBankAccount = createAsyncThunk<BankAccountType[], number>(
+  "user/getBankAccount",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`users/get-bank-account/${userId}`);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Get request failed!");
+    }
+  }
+);
+
+export const getBankAccountDefault = createAsyncThunk<BankAccountType, number>(
+  "user/getBankAccountDefault",
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`users/get-bank-account-default/${userId}`);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Get request failed!");
+    }
+  }
+);
 
 const initialState: DefaultState = {
   loading: false,
   data: null,
-  // listings: [],
   error: null,
+  listBankAccount: [],
 };
 
 const userSlice = createSlice({
@@ -118,6 +157,43 @@ const userSlice = createSlice({
       state.data = action.payload;
     });
     builder.addCase(getUserRole.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    //
+    builder.addCase(getBankAccount.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(getBankAccount.fulfilled, (state, action) => {
+      state.loading = false;
+      state.listBankAccount = action.payload;
+    });
+    builder.addCase(getBankAccount.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    //
+    builder.addCase(createBankAccount.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(createBankAccount.fulfilled, (state, action) => {
+      state.loading = false;
+      if (action.payload.is_default) {
+        state.listBankAccount = (state.listBankAccount ?? []).map((acc) => ({
+          ...acc,
+          is_default: false,
+        }));
+      }
+      state.listBankAccount = [
+        ...(state.listBankAccount ?? []),
+        action.payload,
+      ];
+    });
+    builder.addCase(createBankAccount.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });

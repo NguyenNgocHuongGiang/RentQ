@@ -14,6 +14,7 @@ interface PostCardHorizontalProps {
   isSave?: boolean;
 }
 
+
 export const PostCardHorizontal: React.FC<PostCardHorizontalProps> = ({
   item,
   isSave,

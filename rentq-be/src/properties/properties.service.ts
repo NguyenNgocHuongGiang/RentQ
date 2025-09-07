@@ -37,9 +37,9 @@ export class PropertiesService {
   async getUserProperties(id: number) {
     return await this.prisma.properties.findMany({
       where: { landlord_id: id },
-      include:{
+      include: {
         property_images: true,
-      }
+      },
     });
   }
 
@@ -65,14 +65,13 @@ export class PropertiesService {
       },
     });
 
-    const addresses = properties.map(property => {
+    const addresses = properties.map((property) => {
       const addressParts = property.address.split(',');
-      return addressParts.slice(1).join(',').trim(); 
+      return addressParts.slice(1).join(',').trim();
     });
-  
+
     return addresses;
   }
-  
 
   async remove(id: number) {
     const property = await this.prisma.properties.findUnique({
@@ -83,6 +82,22 @@ export class PropertiesService {
     }
     return await this.prisma.properties.delete({
       where: { property_id: id },
+    });
+  }
+
+  async getTenantProperties(userId: number) {
+    return this.prisma.properties.findMany({
+      where: {
+        contracts: {
+          some: {
+            contract_tenants: {
+              some: {
+                tenant_id: userId,
+              },
+            },
+          },
+        },
+      },
     });
   }
 }

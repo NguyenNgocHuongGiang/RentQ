@@ -15,10 +15,12 @@ import { MessageModule } from './message/message.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { ContractTenantsModule } from './contract_tenants/contract_tenants.module';
 import { BillsModule } from './bills/bills.module';
+import { RoomFinderModule } from './room-finder/room-finder.module';
+import { RoomRequestModule } from './room-request/room-request.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}),UserModule, AuthModule, FileUploadModule, RoleModule, ReviewsModule, PropertiesModule, PostsModule, PropertyImagesModule, SavePostModule, MessageModule, ContractsModule, ContractTenantsModule, BillsModule],
+  imports: [ConfigModule.forRoot({isGlobal: true}),UserModule, AuthModule, FileUploadModule, RoleModule, ReviewsModule, PropertiesModule, PostsModule, PropertyImagesModule, SavePostModule, MessageModule, ContractsModule, ContractTenantsModule, BillsModule, RoomFinderModule, RoomRequestModule],
   controllers: [AppController],
   providers: [AppService],
 })

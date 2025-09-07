@@ -16,6 +16,9 @@ export type DefaultState = {
   listPropertyImages?: PropertyImage[];
   listContracts?: ContractType[];
   listBills: BillType[]
+  listBankAccount: BankAccountType[]
+  listPostProfile: any[]
+  listActiveRoommateRequest: RoommateRequestType[]
 }>;
 
 export type SearchPost = {
@@ -82,6 +85,7 @@ export type ActivePostType = {
   post_id: number;
   price: number;
   alias: string;
+  description: string,
   properties: {
     max_people: number;
     address: string;
@@ -155,7 +159,7 @@ export type BillType = {
   contract_id: number | null;
   bill_date: Date | string | null;
   due_date: Date | string | null;
-  total_amount: string;
+  total_amount: number;
   status: "UNPAID" | "PAID" | "CANCELLED";
   payment_date?: Date | string | null;
   bill_items?: BillItemType[]
@@ -173,4 +177,39 @@ export type BillItemType = {
     note: string
 };
 
+export type BankAccountType = {
+  account_id?: number,
+  user_id: number,
+  bank_code: string,
+  bank_name: string,
+  bank_bin: string,
+  account_number: string,
+  account_holder: string,
+  branch: string,
+  qr_code_url: string,
+  is_default: boolean
+}
 
+
+export type RoomFinderType = {
+  finder_id?: number,
+  tenant_id: number,
+  preferred_location: string,
+  budget: number,
+  move_in_date: string,
+  preferences: string,
+  status: 'active' | 'matched' | 'closed',
+  created_at?: string
+}
+
+export type RoommateRequestType = {
+  request_id?: number,
+  tenant_id: number,
+  property_id: number;
+  description: string,
+  status: 'open' | 'closed',
+  created_at?: string,
+  properties?: any
+  posts?: PostsType[]
+  users?: User
+}

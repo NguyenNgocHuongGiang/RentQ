@@ -25,9 +25,9 @@ export class ContractsService {
     });
   }
 
-  findAll() {
-    return `This action returns all contracts`;
-  }
+  // findAll() {
+  //   return `This action returns all contracts`;
+  // }
 
   getContractByLandlordID(id: number) {
     return this.prisma.contracts.findMany({

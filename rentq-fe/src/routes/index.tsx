@@ -16,23 +16,39 @@ const routes: RouteConfig[] = [
         element: lazy(() => import("./../pages/UserTemplate/Homepage")),
       },
       {
-        path: "discovery",
+        path: "tim-tro",
+        element: lazy(() => import("./../pages/UserTemplate/RoomFinderPage")),
+      },
+      {
+        path: "lien-he",
+        element: lazy(() => import("./../pages/UserTemplate/ContactPage")),
+      },
+      {
+        path: "o-ghep",
+        element: lazy(() => import("./../pages/UserTemplate/RoommateRequestPage")),
+      },
+      {
+        path: "cho-thue",
         element: lazy(() => import("./../pages/UserTemplate/DiscoveryPage")),
+        nested: [
+          {
+            path: "detail/:alias",
+            element: lazy(() => import("./../pages/UserTemplate/DetailPostPage/MiniDetailPost")),
+          },
+        ]
       },
       {
         path: "request-role",
         element: lazy(() => import("./../pages/UserTemplate/RequestRole")),
       },
       {
+        path: "me/:userId",
+        element: lazy(() => import("./../pages/UserTemplate/ProfilePage/MyProfile")),
+      },
+      {
         path: "me",
         element: lazy(() => import("./../pages/UserTemplate/ProfilePage")),
         nested: [
-          {
-            path: "",
-            element: lazy(
-              () => import("./../pages/UserTemplate/ProfilePage/MyProfile")
-            ),
-          },
           {
             path: "user-information",
             element: lazy(

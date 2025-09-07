@@ -132,6 +132,7 @@ const MyContracts = () => {
                             setContractToReview(contract);
                             setIsReviewed(true);
                           }}
+                          disabled={contract.status !== 'pending'}
                         >
                           Respond
                         </Button>

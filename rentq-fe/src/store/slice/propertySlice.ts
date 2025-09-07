@@ -52,6 +52,18 @@ export const getUserProperties = createAsyncThunk<any, number>(
   }
 );
 
+export const getTenantProperties = createAsyncThunk<PropertyType[], number>(
+  "property/getTenantProperties",
+  async (user_id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`properties/tenant-properties/${user_id}`);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
+    }
+  }
+);
+
 export const getLocation = createAsyncThunk<string[]>(
   "property/getLocation",
   async (_, { rejectWithValue }) => {

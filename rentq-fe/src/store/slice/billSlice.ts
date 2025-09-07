@@ -19,6 +19,18 @@ export const getLandlordBills = createAsyncThunk<
   }
 );
 
+export const getTenantBills = createAsyncThunk<any, number>(
+  "bill/getTenantBills",
+  async (user_id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`bills/get-by-tenantId/${user_id}`);
+      return response.data.content;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lấy thông tin thất bại!");
+    }
+  }
+);
+
 export const createNewBill = createAsyncThunk<BillType, BillType>(
   "bill/createNewBill",
   async (credentials, { rejectWithValue }) => {
@@ -90,10 +102,26 @@ const billSlice = createSlice({
       })
       .addCase(deleteBill.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload);   
-        state.listBills = state.listBills?.filter(bill => bill.bill_id !== action.payload.bill_id);
+        console.log(action.payload);
+        state.listBills = state.listBills?.filter(
+          (bill) => bill.bill_id !== action.payload.bill_id
+        );
       })
       .addCase(deleteBill.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+    builder
+      .addCase(getTenantBills.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTenantBills.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log(action.payload);
+        state.listBills = action.payload
+      })
+      .addCase(getTenantBills.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
